@@ -1,10 +1,340 @@
 <!DOCTYPE html>
-<html>
+<html lang="ko">
 <head>
-  <title>math-battle</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>사칙연산 퀴즈 게임</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+        }
+
+        .game-container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            min-width: 400px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .score-display {
+            font-size: 1.5em;
+            margin-bottom: 30px;
+            padding: 10px 20px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            display: inline-block;
+        }
+
+        .question {
+            font-size: 2em;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 15px;
+            font-weight: bold;
+        }
+
+        .input-section {
+            margin-bottom: 30px;
+        }
+
+        input[type="number"] {
+            font-size: 1.5em;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            width: 200px;
+            text-align: center;
+            background: rgba(255, 255, 255, 0.9);
+            color: #333;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        input[type="number"]:focus {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+        }
+
+        .buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        button {
+            padding: 15px 30px;
+            font-size: 1.2em;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+        }
+
+        .submit-btn {
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+            color: white;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(76, 175, 80, 0.4);
+        }
+
+        .skip-btn {
+            background: linear-gradient(45deg, #ff9800, #f57c00);
+            color: white;
+        }
+
+        .skip-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 152, 0, 0.4);
+        }
+
+        .feedback {
+            font-size: 1.3em;
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 10px;
+            font-weight: bold;
+            min-height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .correct {
+            background: rgba(76, 175, 80, 0.3);
+            color: #4CAF50;
+        }
+
+        .incorrect {
+            background: rgba(244, 67, 54, 0.3);
+            color: #f44336;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.5em;
+            font-weight: bold;
+            display: block;
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            opacity: 0.8;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .pulse {
+            animation: pulse 0.3s ease-in-out;
+        }
+    </style>
 </head>
 <body>
-  <h1>그것만은 확실했다.</h1>
-  <p>당신은 바보다.</p>
+    <div class="game-container">
+        <h1>🧮 사칙연산 퀴즈</h1>
+        
+        <div class="score-display">
+            점수: <span id="score">0</span>
+        </div>
+        
+        <div class="question" id="question">
+            문제를 불러오는 중...
+        </div>
+        
+        <div class="input-section">
+            <input type="number" id="answer" placeholder="답을 입력하세요" autocomplete="off">
+        </div>
+        
+        <div class="buttons">
+            <button class="submit-btn" onclick="checkAnswer()">정답 확인</button>
+            <button class="skip-btn" onclick="skipQuestion()">다음 문제</button>
+        </div>
+        
+        <div class="feedback" id="feedback"></div>
+        
+        <div class="stats">
+            <div class="stat-item">
+                <span class="stat-value" id="totalQuestions">0</span>
+                <span class="stat-label">총 문제</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-value" id="correctAnswers">0</span>
+                <span class="stat-label">정답</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-value" id="accuracy">0%</span>
+                <span class="stat-label">정답률</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentQuestion = {};
+        let score = 0;
+        let totalQuestions = 0;
+        let correctAnswers = 0;
+
+        const operators = ['+', '-', '×', '÷'];
+        const operatorSymbols = {
+            '+': '+',
+            '-': '-',
+            '×': '*',
+            '÷': '/'
+        };
+
+        function generateQuestion() {
+            const operator = operators[Math.floor(Math.random() * operators.length)];
+            let num1, num2, answer;
+
+            switch(operator) {
+                case '+':
+                    num1 = Math.floor(Math.random() * 50) + 1;
+                    num2 = Math.floor(Math.random() * 50) + 1;
+                    answer = num1 + num2;
+                    break;
+                case '-':
+                    num1 = Math.floor(Math.random() * 50) + 20;
+                    num2 = Math.floor(Math.random() * num1) + 1;
+                    answer = num1 - num2;
+                    break;
+                case '×':
+                    num1 = Math.floor(Math.random() * 12) + 1;
+                    num2 = Math.floor(Math.random() * 12) + 1;
+                    answer = num1 * num2;
+                    break;
+                case '÷':
+                    // 나누어떨어지는 수만 생성
+                    num2 = Math.floor(Math.random() * 12) + 1;
+                    answer = Math.floor(Math.random() * 12) + 1;
+                    num1 = num2 * answer;
+                    break;
+            }
+
+            currentQuestion = {
+                num1: num1,
+                num2: num2,
+                operator: operator,
+                answer: answer
+            };
+
+            document.getElementById('question').textContent = `${num1} ${operator} ${num2} = ?`;
+            document.getElementById('answer').value = '';
+            document.getElementById('feedback').textContent = '';
+            document.getElementById('feedback').className = 'feedback';
+            document.getElementById('answer').focus();
+        }
+
+        function checkAnswer() {
+            const userAnswer = parseInt(document.getElementById('answer').value);
+            const feedbackElement = document.getElementById('feedback');
+            
+            if (isNaN(userAnswer)) {
+                feedbackElement.textContent = '숫자를 입력해주세요!';
+                feedbackElement.className = 'feedback incorrect';
+                return;
+            }
+
+            totalQuestions++;
+            
+            if (userAnswer === currentQuestion.answer) {
+                score += 10;
+                correctAnswers++;
+                feedbackElement.textContent = '정답입니다! 🎉';
+                feedbackElement.className = 'feedback correct';
+                
+                // 점수 애니메이션
+                document.getElementById('score').parentElement.classList.add('pulse');
+                setTimeout(() => {
+                    document.getElementById('score').parentElement.classList.remove('pulse');
+                }, 300);
+            } else {
+                feedbackElement.textContent = `틀렸습니다. 정답은 ${currentQuestion.answer}입니다.`;
+                feedbackElement.className = 'feedback incorrect';
+            }
+
+            updateStats();
+            
+            // 1.5초 후 다음 문제 생성
+            setTimeout(() => {
+                generateQuestion();
+            }, 1500);
+        }
+
+        function skipQuestion() {
+            totalQuestions++;
+            const feedbackElement = document.getElementById('feedback');
+            feedbackElement.textContent = `정답은 ${currentQuestion.answer}였습니다.`;
+            feedbackElement.className = 'feedback incorrect';
+            
+            updateStats();
+            
+            setTimeout(() => {
+                generateQuestion();
+            }, 1000);
+        }
+
+        function updateStats() {
+            document.getElementById('score').textContent = score;
+            document.getElementById('totalQuestions').textContent = totalQuestions;
+            document.getElementById('correctAnswers').textContent = correctAnswers;
+            
+            const accuracy = totalQuestions > 0 ? Math.round((correctAnswers / totalQuestions) * 100) : 0;
+            document.getElementById('accuracy').textContent = accuracy + '%';
+        }
+
+        // Enter 키로 답 확인
+        document.getElementById('answer').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                checkAnswer();
+            }
+        });
+
+        // 게임 시작
+        generateQuestion();
+    </script>
 </body>
 </html>
