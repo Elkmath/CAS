@@ -3,48 +3,44 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>사칙연산 퀴즈 게임</title>
+    <title>연산 퀴즈 게임</title>
     <style>
         *{margin:0;padding:0;box-sizing:border-box}
         body{font-family:Arial,sans-serif;background:#f5f5f5;min-height:100vh;display:flex;justify-content:center;align-items:center;color:#333}
         .container{background:white;border-radius:8px;padding:40px;box-shadow:0 2px 10px rgba(0,0,0,.1);text-align:center;min-width:450px;border:1px solid #ddd}
         h1{font-size:2.5em;margin-bottom:30px;color:#333}
-        .screen{display:none}
-        .screen.active{display:block}
+        .screen{display:none}.screen.active{display:block}
         button{padding:15px 30px;font-size:1.2em;border:1px solid #ddd;border-radius:4px;cursor:pointer;font-weight:bold;background:white;transition:all .3s ease}
         .mode-btn{padding:20px 40px;font-size:1.5em;border:2px solid #007bff;color:#007bff}
         .mode-btn:hover{background:#007bff;color:white}
-        .mode-btn.disabled{background:#f8f9fa;color:#6c757d;border-color:#6c757d;cursor:not-allowed}
         .difficulty-btn{padding:12px 24px;font-size:1.1em}
         .difficulty-btn.active,.difficulty-btn:hover{background:#007bff;color:white;border-color:#007bff}
-        .hardcore-btn{padding:15px 30px;font-size:1.2em;border:2px solid #dc3545;color:#dc3545;margin:20px 0}
-        .hardcore-btn:hover{background:#dc3545;color:white}
-        .hardcore-btn.active{background:#dc3545;color:white}
-        .primary-btn{background:#007bff;color:white;border-color:#007bff}
-        .primary-btn:hover{background:#0056b3;border-color:#0056b3}
-        .success-btn{background:#28a745;color:white;border:none}
-        .success-btn:hover{background:#218838}
-        .secondary-btn{background:#6c757d;color:white;border-color:#6c757d}
-        .secondary-btn:hover{background:#545b62;border-color:#545b62}
+        .special-btn{padding:10px 20px;font-size:1em;border:2px solid;border-radius:4px;cursor:pointer;font-weight:bold;background:white;transition:all .3s ease}
+        .hardcore-btn{border-color:#dc3545;color:#dc3545}.hardcore-btn:hover,.hardcore-btn.active{background:#dc3545;color:white}
+        .middle-btn{border-color:#fd7e14;color:#fd7e14}.middle-btn:hover,.middle-btn.active{background:#fd7e14;color:white}
+        .primary-btn{background:#007bff;color:white;border-color:#007bff}.primary-btn:hover{background:#0056b3;border-color:#0056b3}
+        .success-btn{background:#28a745;color:white;border:none}.success-btn:hover{background:#218838}
+        .secondary-btn{background:#6c757d;color:white;border-color:#6c757d}.secondary-btn:hover{background:#545b62;border-color:#545b62}
         .card{background:#f8f9fa;border:1px solid #e9ecef;border-radius:4px;padding:20px;margin-bottom:30px}
         .flex-center{display:flex;justify-content:center;align-items:center;gap:20px}
-        .flex-between{display:flex;justify-content:space-between;align-items:center}
+        .special-modes{display:flex;justify-content:center;gap:15px;margin-bottom:30px}
         .development-notice{color:#dc3545;font-size:1.2em;font-weight:bold;margin-top:15px;display:none}
         .time-control{display:flex;align-items:center;justify-content:center;gap:15px;margin-bottom:15px}
         .time-btn-group{display:flex;flex-direction:column;gap:2px;height:52px}
         .time-btn{width:35px;height:25px;border-radius:6px;background:#007bff;color:white;border:none;font-size:1em;font-weight:bold;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s ease;user-select:none}
-        .time-btn:hover{background:#0056b3;transform:scale(1.05)}
-        .time-btn:active{transform:scale(0.95);background:#004085}
+        .time-btn:hover{background:#0056b3;transform:scale(1.05)}.time-btn:active{transform:scale(0.95);background:#004085}
         .time-display{font-size:1.8em;font-weight:bold;color:#007bff;min-width:120px;text-align:center;height:52px;display:flex;align-items:center;justify-content:center}
         .game-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:30px;padding:15px;background:#f8f9fa;border-radius:4px;border:1px solid #e9ecef}
         .timer{font-size:1.5em;font-weight:bold;color:#dc3545}
         .question-timer{font-size:1.2em;font-weight:bold;color:#ff6b35;margin-top:10px;margin-bottom:20px}
-        .score-display{font-size:1.5em;font-weight:bold;color:#007bff}
         .question{font-size:2em;font-weight:bold;margin-bottom:30px}
         input[type="number"]{font-size:1.5em;padding:15px;border:1px solid #ddd;border-radius:4px;width:200px;text-align:center;background:white;color:#333;outline:none;-moz-appearance:textfield;margin-bottom:30px}
         input[type="number"]::-webkit-outer-spin-button,input[type="number"]::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
         input[type="number"]:focus{border-color:#007bff}
         .buttons{display:flex;gap:15px;justify-content:center;margin-bottom:20px}
+        .score-display{font-size:1.5em;font-weight:bold;color:#007bff;margin-bottom:20px}
+        .indicator{color:white;padding:5px 15px;border-radius:20px;font-size:0.9em;margin-left:10px;font-weight:bold}
+        .hardcore-indicator{background:#dc3545}.middle-indicator{background:#fd7e14}
         .feedback{font-size:1.3em;margin-top:20px;padding:15px;border-radius:4px;font-weight:bold;min-height:50px;display:flex;align-items:center;justify-content:center}
         .feedback.correct{background:#d4edda;color:#155724;border:1px solid #c3e6cb}
         .feedback.incorrect{background:#f8d7da;color:#721c24;border:1px solid #f5c6cb}
@@ -58,113 +54,83 @@
         .result-score{font-size:3em;font-weight:bold;color:#007bff;margin-bottom:10px}
         .result-details{font-size:1.2em;color:#666;margin-bottom:30px}
         .stats{display:flex;justify-content:space-around;margin-top:20px;margin-bottom:30px;padding:15px;background:#f8f9fa;border-radius:4px;border:1px solid #e9ecef}
-        .stat-item{text-align:center}
-        .stat-value{font-size:1.5em;font-weight:bold;display:block}
-        .stat-label{font-size:.9em;opacity:.8}
-        .hardcore-indicator{background:#dc3545;color:white;padding:5px 15px;border-radius:20px;font-size:0.9em;margin-left:10px}
-        .section{margin-bottom:20px}
+        .stat-item{text-align:center}.stat-value{font-size:1.5em;font-weight:bold;display:block}.stat-label{font-size:.9em;opacity:.8}
+        .section{margin-bottom:40px}
     </style>
 </head>
 <body>
     <div class="container">
-        <!-- 모드 선택 화면 -->
         <div id="modeScreen" class="screen active">
-            <h1>사칙연산 퀴즈</h1>
-            
-            <div class="mode-selection">
-                <div class="flex-center">
-                    <button class="mode-btn" onclick="selectMode('single')">개인 모드</button>
-                    <button class="mode-btn" onclick="selectMode('multi')">멀티 모드</button>
-                </div>
-                <div class="development-notice" id="developmentNotice">
-                    아직 개발 중인 기능입니다
-                </div>
+            <h1>연산 퀴즈</h1>
+            <div class="flex-center">
+                <button class="mode-btn" onclick="selectMode('single')">개인 모드</button>
+                <button class="mode-btn" onclick="selectMode('multi')">멀티 모드</button>
             </div>
+            <div class="development-notice" id="developmentNotice">아직 개발 중인 기능입니다</div>
         </div>
 
-        <!-- 시작 화면 -->
         <div id="startScreen" class="screen">
-            <h1>사칙연산 퀴즈</h1>
-            
-            <div class="section difficulty-section">
+            <h1>연산 퀴즈</h1>
+            <div class="section">
                 <div class="flex-center">
                     <button class="difficulty-btn active" onclick="setDifficulty('easy')">쉬움</button>
                     <button class="difficulty-btn" onclick="setDifficulty('medium')">중간</button>
                     <button class="difficulty-btn" onclick="setDifficulty('hard')">어려움</button>
                 </div>
             </div>
-
-            <div class="section hardcore-section">
-                <button class="hardcore-btn" onclick="toggleHardcore()">
+            <div class="section special-modes">
+                <button class="special-btn hardcore-btn" onclick="toggleHardcore()">
                     <div>하드코어 모드 OFF</div>
                     <div style="font-size:0.8em;opacity:0.8;margin-top:3px">문제마다 3초 제한</div>
                 </button>
+                <button class="special-btn middle-btn" onclick="toggleMiddle()">
+                    <div>중등 모드 OFF</div>
+                    <div style="font-size:0.8em;opacity:0.8;margin-top:3px">제곱, 루트 포함</div>
+                </button>
             </div>
-
-            <div class="section time-section">
-                <div class="time-label" style="margin-bottom:10px;font-size:1.2em;font-weight:bold">게임 시간</div>
+            <div class="section">
                 <div class="time-control">
                     <div class="time-display" id="timeDisplay">1분</div>
                     <div class="time-btn-group">
-                        <button class="time-btn" 
-                                onmousedown="startTimeAdjust(1)" 
-                                onmouseup="stopTimeAdjust()" 
-                                onmouseleave="stopTimeAdjust()"
-                                ontouchstart="startTimeAdjust(1)" 
-                                ontouchend="stopTimeAdjust()">▲</button>
-                        <button class="time-btn" 
-                                onmousedown="startTimeAdjust(-1)" 
-                                onmouseup="stopTimeAdjust()" 
-                                onmouseleave="stopTimeAdjust()"
-                                ontouchstart="startTimeAdjust(-1)" 
-                                ontouchend="stopTimeAdjust()">▼</button>
+                        <button class="time-btn" onmousedown="startTimeAdjust(1)" onmouseup="stopTimeAdjust()" onmouseleave="stopTimeAdjust()">▲</button>
+                        <button class="time-btn" onmousedown="startTimeAdjust(-1)" onmouseup="stopTimeAdjust()" onmouseleave="stopTimeAdjust()">▼</button>
                     </div>
                 </div>
             </div>
-
-            <div>
+            <div class="section">
                 <button class="secondary-btn" onclick="goToModeSelection()">모드 선택</button>
-                <button class="success-btn" onclick="startGame()">게임 시작</button>
+                <button class="success-btn" onclick="startGame()">퀴즈 시작</button>
             </div>
         </div>
 
-        <!-- 게임 화면 -->
         <div id="gameScreen" class="screen">
             <div class="game-header">
                 <div class="timer" id="timer">1:00</div>
-                <div class="score-display" id="score-display">점수: <span id="score">0</span>
-                    <span id="hardcoreIndicator" class="hardcore-indicator" style="display:none">하드코어</span>
+                <div>
+                    <span id="hardcoreIndicator" class="indicator hardcore-indicator" style="display:none">하드코어</span>
+                    <span id="middleIndicator" class="indicator middle-indicator" style="display:none">중등</span>
                 </div>
             </div>
-            
-            <div class="question card" id="question">
-                문제를 불러오는 중...
-            </div>
-            
+            <div class="question card" id="question">문제를 불러오는 중...</div>
             <div class="question-timer" id="questionTimer" style="display:none"></div>
-            
             <div class="input-section">
                 <input type="number" id="answer" placeholder="답을 입력하세요" autocomplete="off">
             </div>
-            
             <div class="buttons">
                 <button class="primary-btn" onclick="checkAnswer()">정답 확인</button>
                 <button class="secondary-btn" onclick="skipQuestion()">다음 문제</button>
             </div>
-            
+            <div class="score-display" id="score-display">점수: <span id="score">0</span></div>
             <div class="feedback" id="feedback"></div>
         </div>
 
-        <!-- 결과 화면 -->
         <div id="resultScreen" class="screen">
-            <h1>게임 결과</h1>
-            
+            <h1>퀴즈 결과</h1>
             <div class="card">
                 <div class="result-score" id="finalScore">0점</div>
                 <div class="result-details" id="resultDetails"></div>
                 <div style="font-size:1.1em;color:#666;margin-top:10px;" id="difficultyInfo"></div>
             </div>
-
             <div class="stats">
                 <div class="stat-item">
                     <span class="stat-value" id="totalQuestions">0</span>
@@ -179,418 +145,267 @@
                     <span class="stat-label">정답률</span>
                 </div>
             </div>
-
             <button class="primary-btn" onclick="goToStart()">다시 시작</button>
         </div>
     </div>
 
     <script>
+        let s = {sc:0,tq:0,ca:0,df:'easy',gt:60,tl:0,gtm:null,gm:'single',ia:false,ih:false,im:false,qtl:0,qt:null,tat:null,tati:null};
+        const ops = ['+','-','×','÷'];
         let cq = {};
-let sc = 0;
-let tq = 0;
-let ca = 0;
-let df = 'easy';
-let gt = 60; // 기본값 60초 (1분)
-let tl = 0;
-let gtm = null;
-let gm = 'single';
-let isAnswering = false;
-let isHardcore = false;
-let questionTimeLeft = 0;
-let questionTimer = null;
-let timeAdjustInterval = null;
-let timeAdjustTimeout = null;
 
-const ops = ['+', '-', '×', '÷'];
-
-function selectMode(m) {
-    const dn = document.getElementById('developmentNotice');
-
-    if (m === 'single') {
-        gm = 'single';
-        dn.style.display = 'none';
-        document.getElementById('modeScreen').classList.remove('active');
-        document.getElementById('startScreen').classList.add('active');
-    } else if (m === 'multi') {
-        gm = 'multi';
-        dn.style.display = 'block';
-        setTimeout(() => {
-            dn.style.display = 'none';
-        }, 3000);
-    }
-}
-
-function goToModeSelection() {
-    document.getElementById('startScreen').classList.remove('active');
-    document.getElementById('modeScreen').classList.add('active');
-}
-
-function setDifficulty(lv) {
-    df = lv;
-    document.querySelectorAll('.difficulty-btn').forEach(btn => {
-        btn.classList.remove('active');
-    });
-    document.querySelector(`[onclick="setDifficulty('${lv}')"]`).classList.add('active');
-}
-
-function toggleHardcore() {
-    isHardcore = !isHardcore;
-    const btn = document.querySelector('.hardcore-btn');
-    if (isHardcore) {
-        btn.classList.add('active');
-        btn.innerHTML = '<div>하드코어 모드 ON</div><div style="font-size:0.8em;opacity:0.8;margin-top:3px">문제마다 3초 제한</div>';
-    } else {
-        btn.classList.remove('active');
-        btn.innerHTML = '<div>하드코어 모드 OFF</div><div style="font-size:0.8em;opacity:0.8;margin-top:3px">문제마다 3초 제한</div>';
-    }
-}
-
-function adjustTime(direction) {
-    const currentTime = gt;
-    let newTime;
-    
-    if (direction === 1) { // 증가
-        if (currentTime < 60) {
-            // 초 단위에서 분 단위로 (1분)
-            newTime = 60;
-        } else if (currentTime < 3600) {
-            // 분 단위에서 증가 (최대 60분)
-            newTime = currentTime + 60;
-        } else {
-            // 시간 단위에서 증가 (최대 24시간)
-            newTime = Math.min(currentTime + 3600, 24 * 3600);
-        }
-    } else { // 감소
-        if (currentTime > 3600) {
-            // 시간 단위에서 감소 (최소 1시간)
-            newTime = currentTime - 3600;
-        } else if (currentTime > 60) {
-            // 분 단위에서 감소 (최소 1분)
-            newTime = currentTime - 60;
-        } else {
-            // 초 단위에서 감소 (최소 15초)
-            newTime = Math.max(currentTime - 1, 15);
-        }
-    }
-    
-    gt = newTime;
-    updateTimeDisplay();
-}
-
-function startTimeAdjust(direction) {
-    // 첫 번째 조정 즉시 실행
-    adjustTime(direction);
-    
-    // 300ms 후 연속 조정 시작 (더 빠른 반응)
-    timeAdjustTimeout = setTimeout(() => {
-        timeAdjustInterval = setInterval(() => {
-            adjustTime(direction);
-        }, 50); // 0.05초마다 조정 (더 빠른 속도)
-    }, 300);
-}
-
-function stopTimeAdjust() {
-    if (timeAdjustTimeout) {
-        clearTimeout(timeAdjustTimeout);
-        timeAdjustTimeout = null;
-    }
-    if (timeAdjustInterval) {
-        clearInterval(timeAdjustInterval);
-        timeAdjustInterval = null;
-    }
-}
-
-function updateTimeDisplay() {
-    const hours = Math.floor(gt / 3600);
-    const minutes = Math.floor((gt % 3600) / 60);
-    const seconds = gt % 60;
-    
-    let displayText = '';
-    
-    if (hours > 0) {
-        displayText = `${hours}시간`;
-        if (minutes > 0) displayText += ` ${minutes}분`;
-    } else if (minutes > 0) {
-        displayText = `${minutes}분`;
-    } else {
-        displayText = `${seconds}초`;
-    }
-    
-    document.getElementById('timeDisplay').textContent = displayText;
-}
-
-function startGame() {
-    document.getElementById('startScreen').classList.remove('active');
-    document.getElementById('gameScreen').classList.add('active');
-
-    sc = 0;
-    tq = 0;
-    ca = 0;
-    tl = gt;
-
-    // 하드코어 모드 표시
-    const hardcoreIndicator = document.getElementById('hardcoreIndicator');
-    const questionTimerEl = document.getElementById('questionTimer');
-    if (isHardcore) {
-        hardcoreIndicator.style.display = 'inline';
-        questionTimerEl.style.display = 'block';
-    } else {
-        hardcoreIndicator.style.display = 'none';
-        questionTimerEl.style.display = 'none';
-    }
-
-    updateTimerDisplay();
-    gtm = setInterval(() => {
-        tl--;
-        updateTimerDisplay();
-        if (tl <= 0) {
-            endGame();
-        }
-    }, 1000);
-
-    generateQuestion();
-}
-
-function updateTimerDisplay() {
-    const hours = Math.floor(tl / 3600);
-    const minutes = Math.floor((tl % 3600) / 60);
-    const seconds = tl % 60;
-    
-    let displayText = '';
-    
-    if (hours > 0) {
-        displayText = `${hours}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-    } else {
-        displayText = `${minutes}:${seconds.toString().padStart(2, '0')}`;
-    }
-    
-    document.getElementById('timer').textContent = displayText;
-}
-
-function generateQuestion() {
-    const op = ops[Math.floor(Math.random() * ops.length)];
-    let n1, n2, ans;
-
-    switch(op) {
-        case '+':
-            n1 = Math.floor(Math.random() * (df === 'easy' ? 20 : df === 'medium' ? 50 : 200)) + 1;
-            n2 = Math.floor(Math.random() * (df === 'easy' ? 20 : df === 'medium' ? 50 : 200)) + 1;
-            ans = n1 + n2;
-            break;
-        case '-':
-            n1 = Math.floor(Math.random() * (df === 'easy' ? 30 : df === 'medium' ? 50 : 300)) + (df === 'easy' ? 10 : df === 'medium' ? 20 : 100);
-            n2 = Math.floor(Math.random() * n1) + 1;
-            ans = n1 - n2;
-            break;
-        case '×':
-            n1 = Math.floor(Math.random() * (df === 'easy' ? 10 : df === 'medium' ? 15 : 50)) + 1;
-            n2 = Math.floor(Math.random() * (df === 'easy' ? 10 : df === 'medium' ? 15 : 50)) + 1;
-            ans = n1 * n2;
-            break;
-        case '÷':
-            n2 = Math.floor(Math.random() * (df === 'easy' ? 10 : df === 'medium' ? 15 : 30)) + 1;
-            ans = Math.floor(Math.random() * (df === 'easy' ? 10 : df === 'medium' ? 15 : 30)) + 1;
-            n1 = n2 * ans;
-            break;
-    }
-
-    cq = { num1: n1, num2: n2, operator: op, answer: ans };
-
-    document.getElementById('question').textContent = `${n1} ${op} ${n2} = ?`;
-    document.getElementById('answer').value = '';
-    document.getElementById('feedback').textContent = '';
-    document.getElementById('feedback').className = 'feedback';
-    document.getElementById('answer').focus();
-    
-    // 버튼 활성화
-    isAnswering = false;
-    document.querySelectorAll('.buttons button').forEach(btn => {
-        btn.disabled = false;
-    });
-
-    // 하드코어 모드 문제 타이머 시작
-    if (isHardcore) {
-        questionTimeLeft = 3;
-        updateQuestionTimer();
-        questionTimer = setInterval(() => {
-            questionTimeLeft--;
-            updateQuestionTimer();
-            if (questionTimeLeft <= 0) {
-                clearInterval(questionTimer);
-                autoSkipQuestion();
+        function selectMode(m) {
+            const dn = document.getElementById('developmentNotice');
+            if (m === 'single') {
+                s.gm = 'single';
+                dn.style.display = 'none';
+                showScreen('modeScreen', 'startScreen');
+            } else {
+                s.gm = 'multi';
+                dn.style.display = 'block';
+                setTimeout(() => dn.style.display = 'none', 3000);
             }
-        }, 1000);
-    }
-}
+        }
 
-function updateQuestionTimer() {
-    const questionTimerEl = document.getElementById('questionTimer');
-    questionTimerEl.textContent = `남은 시간: ${questionTimeLeft}초`;
-}
+        function showScreen(h, n) {
+            document.getElementById(h).classList.remove('active');
+            document.getElementById(n).classList.add('active');
+        }
 
-function autoSkipQuestion() {
-    if (isAnswering) return;
-    
-    isAnswering = true;
-    document.querySelectorAll('.buttons button').forEach(btn => {
-        btn.disabled = true;
-    });
+        function goToModeSelection() { showScreen('startScreen', 'modeScreen'); }
+        function goToStart() { showScreen('resultScreen', 'startScreen'); }
 
-    tq++;
-    const fbe = document.getElementById('feedback');
-    const questionEl = document.getElementById('question');
-    
-    fbe.textContent = `시간 초과! 정답은 ${cq.answer}였습니다.`;
-    fbe.className = 'feedback incorrect';
-    
-    questionEl.classList.add('incorrect-flash');
-    
-    setTimeout(() => {
-        questionEl.classList.remove('incorrect-flash');
-    }, 500);
-    
-    setTimeout(() => generateQuestion(), 1000);
-}
+        function setDifficulty(lv) {
+            s.df = lv;
+            document.querySelectorAll('.difficulty-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelector(`[onclick="setDifficulty('${lv}')"]`).classList.add('active');
+        }
 
-function checkAnswer() {
-    // 연타 방지
-    if (isAnswering) return;
-    
-    // 하드코어 모드 타이머 정리
-    if (isHardcore && questionTimer) {
-        clearInterval(questionTimer);
-    }
-    
-    const ua = parseInt(document.getElementById('answer').value);
-    const fbe = document.getElementById('feedback');
-    const questionEl = document.getElementById('question');
-    const scoreEl = document.getElementById('score-display');
+        function toggleHardcore() {
+            s.ih = !s.ih;
+            updateSpecialButton('.hardcore-btn', s.ih, '하드코어 모드');
+        }
 
-    if (isNaN(ua)) {
-        fbe.textContent = '숫자를 입력해주세요!';
-        fbe.className = 'feedback incorrect';
-        return;
-    }
+        function toggleMiddle() {
+            s.im = !s.im;
+            updateSpecialButton('.middle-btn', s.im, '중등 모드');
+        }
 
-    // 답변 처리 중으로 설정
-    isAnswering = true;
-    document.querySelectorAll('.buttons button').forEach(btn => {
-        btn.disabled = true;
-    });
+        function updateSpecialButton(sel, active, name) {
+            const btn = document.querySelector(sel);
+            const desc = sel.includes('hardcore') ? '문제마다 3초 제한' : '제곱, 루트 포함';
+            btn.innerHTML = `<div>${name} ${active ? 'ON' : 'OFF'}</div><div style="font-size:0.8em;opacity:0.8;margin-top:3px">${desc}</div>`;
+            btn.classList.toggle('active', active);
+        }
 
-    tq++;
-    if (ua === cq.answer) {
-        sc += 10;
-        ca++;
-        fbe.textContent = '정답입니다!';
-        fbe.className = 'feedback correct';
-        
-        // 정답 이펙트
-        questionEl.classList.add('correct-flash');
-        scoreEl.classList.add('score-flash');
-        
-        // 애니메이션 정리
-        setTimeout(() => {
-            questionEl.classList.remove('correct-flash');
-            scoreEl.classList.remove('score-flash');
-        }, 600);
-    } else {
-        fbe.textContent = `틀렸습니다. 정답은 ${cq.answer}입니다.`;
-        fbe.className = 'feedback incorrect';
-        
-        // 오답 이펙트
-        questionEl.classList.add('incorrect-flash');
-        
-        // 애니메이션 정리
-        setTimeout(() => {
-            questionEl.classList.remove('incorrect-flash');
-        }, 500);
-    }
+        function adjustTime(dir) {
+            let nt = s.gt;
+            if (dir === 1) nt = nt < 60 ? 60 : nt < 3600 ? nt + 60 : Math.min(nt + 3600, 86400);
+            else nt = nt > 3600 ? nt - 3600 : nt > 60 ? nt - 60 : Math.max(nt - 1, 15);
+            s.gt = nt;
+            updateTimeDisplay();
+        }
 
-    document.getElementById('score').textContent = sc;
-    setTimeout(() => generateQuestion(), 1000);
-}
+        function startTimeAdjust(dir) {
+            adjustTime(dir);
+            s.tati = setTimeout(() => {
+                s.tat = setInterval(() => adjustTime(dir), 50);
+            }, 300);
+        }
 
-function skipQuestion() {
-    // 연타 방지
-    if (isAnswering) return;
-    
-    // 하드코어 모드 타이머 정리
-    if (isHardcore && questionTimer) {
-        clearInterval(questionTimer);
-    }
-    
-    isAnswering = true;
-    document.querySelectorAll('.buttons button').forEach(btn => {
-        btn.disabled = true;
-    });
+        function stopTimeAdjust() {
+            clearTimeout(s.tati);
+            clearInterval(s.tat);
+        }
 
-    tq++;
-    const fbe = document.getElementById('feedback');
-    const questionEl = document.getElementById('question');
-    
-    fbe.textContent = `정답은 ${cq.answer}였습니다.`;
-    fbe.className = 'feedback incorrect';
-    
-    // 스킵 이펙트 (오답과 동일)
-    questionEl.classList.add('incorrect-flash');
-    
-    // 애니메이션 정리
-    setTimeout(() => {
-        questionEl.classList.remove('incorrect-flash');
-    }, 500);
-    
-    setTimeout(() => generateQuestion(), 1000);
-}
+        function updateTimeDisplay() {
+            const h = Math.floor(s.gt / 3600), m = Math.floor((s.gt % 3600) / 60), sec = s.gt % 60;
+            document.getElementById('timeDisplay').textContent = h > 0 ? `${h}시간${m > 0 ? ` ${m}분` : ''}` : m > 0 ? `${m}분` : `${sec}초`;
+        }
 
-function endGame() {
-    clearInterval(gtm);
-    if (isHardcore && questionTimer) {
-        clearInterval(questionTimer);
-    }
-    
-    document.getElementById('gameScreen').classList.remove('active');
-    document.getElementById('resultScreen').classList.add('active');
+        function startGame() {
+            showScreen('startScreen', 'gameScreen');
+            s.sc = s.tq = s.ca = 0;
+            s.tl = s.gt;
+            updateIndicators();
+            updateTimerDisplay();
+            s.gtm = setInterval(() => {
+                if (--s.tl <= 0) endGame();
+                else updateTimerDisplay();
+            }, 1000);
+            generateQuestion();
+        }
 
-    document.getElementById('finalScore').textContent = sc + '점';
+        function updateIndicators() {
+            document.getElementById('hardcoreIndicator').style.display = s.ih ? 'inline' : 'none';
+            document.getElementById('middleIndicator').style.display = s.im ? 'inline' : 'none';
+            document.getElementById('questionTimer').style.display = s.ih ? 'block' : 'none';
+        }
 
-    // 게임 시간 표시
-    const hours = Math.floor(gt / 3600);
-    const minutes = Math.floor((gt % 3600) / 60);
-    const seconds = gt % 60;
-    
-    let gameTimeText = '';
-    if (hours > 0) {
-        gameTimeText = `${hours}시간`;
-        if (minutes > 0) gameTimeText += ` ${minutes}분`;
-    } else if (minutes > 0) {
-        gameTimeText = `${minutes}분`;
-    } else {
-        gameTimeText = `${seconds}초`;
-    }
-    
-    document.getElementById('resultDetails').textContent = `게임 시간: ${gameTimeText}`;
+        function updateTimerDisplay() {
+            const h = Math.floor(s.tl / 3600), m = Math.floor((s.tl % 3600) / 60), sec = s.tl % 60;
+            document.getElementById('timer').textContent = h > 0 ? `${h}:${m.toString().padStart(2, '0')}:${sec.toString().padStart(2, '0')}` : `${m}:${sec.toString().padStart(2, '0')}`;
+        }
 
-    const dft = df === 'easy' ? '쉬움' : df === 'medium' ? '중간' : '어려움';
-    const hardcoreText = isHardcore ? '-하드코어' : '';
-    document.getElementById('difficultyInfo').textContent = `난이도: ${dft}${hardcoreText}`;
+        function generateQuestion() {
+            let op, n1, n2, ans;
+            
+            if (s.im && Math.random() < 0.3) {
+                if (Math.random() < 0.5) {
+                    n1 = Math.floor(Math.random() * (s.df === 'easy' ? 12 : s.df === 'medium' ? 15 : 20)) + 1;
+                    ans = n1 * n1;
+                    cq = {num1: n1, num2: null, operator: '²', answer: ans};
+                    document.getElementById('question').textContent = `${n1}² = ?`;
+                } else {
+                    const ps = s.df === 'easy' ? [1,4,9,16,25,36,49,64,81,100] : 
+                              s.df === 'medium' ? [1,4,9,16,25,36,49,64,81,100,121,144,169,196,225] :
+                              [1,4,9,16,25,36,49,64,81,100,121,144,169,196,225,256,289,324,361,400];
+                    ans = ps[Math.floor(Math.random() * ps.length)];
+                    n1 = Math.sqrt(ans);
+                    cq = {num1: ans, num2: null, operator: 'sqrt', answer: n1};
+                    document.getElementById('question').textContent = `sqrt(${ans}) = ?`;
+                }
+            } else {
+                op = ops[Math.floor(Math.random() * ops.length)];
+                const r = {easy: {a:20,s:30,m:10,d:10}, medium: {a:50,s:50,m:15,d:15}, hard: {a:200,s:300,m:50,d:30}}[s.df];
+                
+                if (op === '+') {
+                    n1 = Math.floor(Math.random() * r.a) + 1;
+                    n2 = Math.floor(Math.random() * r.a) + 1;
+                    ans = n1 + n2;
+                } else if (op === '-') {
+                    n1 = Math.floor(Math.random() * r.s) + (s.df === 'easy' ? 10 : s.df === 'medium' ? 20 : 100);
+                    n2 = Math.floor(Math.random() * n1) + 1;
+                    ans = n1 - n2;
+                } else if (op === '×') {
+                    n1 = Math.floor(Math.random() * r.m) + 1;
+                    n2 = Math.floor(Math.random() * r.m) + 1;
+                    ans = n1 * n2;
+                } else {
+                    n2 = Math.floor(Math.random() * r.d) + 1;
+                    ans = Math.floor(Math.random() * r.d) + 1;
+                    n1 = n2 * ans;
+                }
+                
+                cq = {num1: n1, num2: n2, operator: op, answer: ans};
+                document.getElementById('question').textContent = `${n1} ${op} ${n2} = ?`;
+            }
 
-    document.getElementById('totalQuestions').textContent = tq;
-    document.getElementById('correctAnswers').textContent = ca;
-    document.getElementById('accuracy').textContent = (tq > 0 ? Math.round((ca / tq) * 100) : 0) + '%';
-}
+            resetQuestion();
+            if (s.ih) startQuestionTimer();
+        }
 
-function goToStart() {
-    document.getElementById('resultScreen').classList.remove('active');
-    document.getElementById('startScreen').classList.add('active');
-}
+        function resetQuestion() {
+            document.getElementById('answer').value = '';
+            document.getElementById('feedback').textContent = '';
+            document.getElementById('feedback').className = 'feedback';
+            document.getElementById('answer').focus();
+            s.ia = false;
+            document.querySelectorAll('.buttons button').forEach(btn => btn.disabled = false);
+        }
 
-document.getElementById('answer').addEventListener('keypress', function(e) {
-    if (e.key === 'Enter') checkAnswer();
-});
+        function startQuestionTimer() {
+            s.qtl = 3;
+            updateQuestionTimer();
+            s.qt = setInterval(() => {
+                if (--s.qtl <= 0) {
+                    clearInterval(s.qt);
+                    autoSkipQuestion();
+                } else updateQuestionTimer();
+            }, 1000);
+        }
 
-// 초기 시간 표시 업데이트
-updateTimeDisplay();
+        function updateQuestionTimer() {
+            document.getElementById('questionTimer').textContent = `남은 시간: ${s.qtl}초`;
+        }
+
+        function autoSkipQuestion() {
+            if (s.ia) return;
+            processAnswer(null, '시간 초과! 정답은 ' + cq.answer + '였습니다.');
+        }
+
+        function checkAnswer() {
+            if (s.ia) return;
+            clearInterval(s.qt);
+            
+            const ua = parseInt(document.getElementById('answer').value);
+            if (isNaN(ua)) {
+                document.getElementById('feedback').textContent = '숫자를 입력해주세요!';
+                document.getElementById('feedback').className = 'feedback incorrect';
+                return;
+            }
+            
+            const ic = ua === cq.answer;
+            processAnswer(ic, ic ? '정답입니다!' : `틀렸습니다. 정답은 ${cq.answer}입니다.`);
+        }
+
+        function skipQuestion() {
+            if (s.ia) return;
+            clearInterval(s.qt);
+            processAnswer(false, `정답은 ${cq.answer}였습니다.`);
+        }
+
+        function processAnswer(ic, msg) {
+            s.ia = true;
+            document.querySelectorAll('.buttons button').forEach(btn => btn.disabled = true);
+            
+            s.tq++;
+            if (ic) {
+                s.sc += 10;
+                s.ca++;
+                applyEffect('correct');
+            } else applyEffect('incorrect');
+            
+            const fbe = document.getElementById('feedback');
+            fbe.textContent = msg;
+            fbe.className = 'feedback ' + (ic ? 'correct' : 'incorrect');
+            
+            document.getElementById('score').textContent = s.sc;
+            setTimeout(() => generateQuestion(), 1000);
+        }
+
+        function applyEffect(type) {
+            const qe = document.getElementById('question');
+            const se = document.getElementById('score-display');
+            
+            if (type === 'correct') {
+                qe.classList.add('correct-flash');
+                se.classList.add('score-flash');
+                setTimeout(() => {
+                    qe.classList.remove('correct-flash');
+                    se.classList.remove('score-flash');
+                }, 600);
+            } else {
+                qe.classList.add('incorrect-flash');
+                setTimeout(() => qe.classList.remove('incorrect-flash'), 500);
+            }
+        }
+
+        function endGame() {
+            clearInterval(s.gtm);
+            clearInterval(s.qt);
+            showScreen('gameScreen', 'resultScreen');
+            
+            document.getElementById('finalScore').textContent = s.sc + '점';
+            
+            const h = Math.floor(s.gt / 3600), m = Math.floor((s.gt % 3600) / 60), sec = s.gt % 60;
+            let gtt = h > 0 ? `${h}시간${m > 0 ? ` ${m}분` : ''}` : m > 0 ? `${m}분` : `${sec}초`;
+            document.getElementById('resultDetails').textContent = `게임 시간: ${gtt}`;
+            
+            const dft = s.df === 'easy' ? '쉬움' : s.df === 'medium' ? '중간' : '어려움';
+            const modes = (s.ih ? '-하드코어' : '') + (s.im ? '-중등' : '');
+            document.getElementById('difficultyInfo').textContent = `난이도: ${dft}${modes}`;
+            
+            document.getElementById('totalQuestions').textContent = s.tq;
+            document.getElementById('correctAnswers').textContent = s.ca;
+            document.getElementById('accuracy').textContent = (s.tq > 0 ? Math.round((s.ca / s.tq) * 100) : 0) + '%';
+        }
+
+        document.getElementById('answer').addEventListener('keypress', e => {
+            if (e.key === 'Enter') checkAnswer();
+        });
+
+        updateTimeDisplay();
     </script>
 </body>
 </html>
