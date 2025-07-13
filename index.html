@@ -5,393 +5,62 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>사칙연산 퀴즈 게임</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Arial', sans-serif;
-            background: #f5f5f5;
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            color: #333;
-        }
-
-        .container {
-            background: white;
-            border-radius: 8px;
-            padding: 40px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            text-align: center;
-            min-width: 450px;
-            border: 1px solid #ddd;
-        }
-
-        h1 {
-            font-size: 2.5em;
-            margin-bottom: 30px;
-            color: #333;
-        }
-
-        .screen {
-            display: none;
-        }
-
-        .screen.active {
-            display: block;
-        }
-
-        /* 모드 선택 화면 */
-        .mode-selection {
-            margin-bottom: 30px;
-        }
-
-        .mode-buttons {
-            display: flex;
-            gap: 20px;
-            justify-content: center;
-            margin-bottom: 30px;
-        }
-
-        .mode-btn {
-            padding: 20px 40px;
-            font-size: 1.5em;
-            border: 2px solid #007bff;
-            border-radius: 8px;
-            cursor: pointer;
-            background: white;
-            color: #007bff;
-            font-weight: bold;
-            transition: all 0.3s ease;
-        }
-
-        .mode-btn:hover {
-            background: #007bff;
-            color: white;
-        }
-
-        .mode-btn.disabled {
-            background: #f8f9fa;
-            color: #6c757d;
-            border-color: #6c757d;
-            cursor: not-allowed;
-        }
-
-        .mode-btn.disabled:hover {
-            background: #f8f9fa;
-            color: #6c757d;
-        }
-
-        .development-notice {
-            color: #dc3545;
-            font-size: 1.2em;
-            font-weight: bold;
-            margin-top: 15px;
-            display: none;
-        }
-
-        /* 시작 화면 */
-        .difficulty-section {
-            margin-bottom: 30px;
-        }
-
-        .difficulty-buttons {
-            display: flex;
-            gap: 10px;
-            justify-content: center;
-            margin-bottom: 10px;
-        }
-
-        .difficulty-btn {
-            padding: 12px 24px;
-            font-size: 1.1em;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            cursor: pointer;
-            background: white;
-            color: #333;
-        }
-
-        .difficulty-btn.active {
-            background: #007bff;
-            color: white;
-            border-color: #007bff;
-        }
-
-        .difficulty-btn:hover {
-            background: #f8f9fa;
-        }
-
-        .difficulty-btn.active:hover {
-            background: #0056b3;
-        }
-
-        .time-section {
-            margin-bottom: 30px;
-        }
-
-        .time-label {
-            font-size: 1.2em;
-            margin-bottom: 15px;
-            color: #333;
-        }
-
-        .time-slider-container {
-            margin-bottom: 15px;
-        }
-
-        .time-slider {
-            width: 100%;
-            height: 8px;
-            border-radius: 4px;
-            background: #ddd;
-            outline: none;
-            -webkit-appearance: none;
-        }
-
-        .time-slider::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            appearance: none;
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            background: #007bff;
-            cursor: pointer;
-        }
-
-        .time-slider::-moz-range-thumb {
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            background: #007bff;
-            cursor: pointer;
-            border: none;
-        }
-
-        .time-display {
-            font-size: 1.3em;
-            font-weight: bold;
-            color: #007bff;
-            margin-bottom: 20px;
-        }
-
-        .start-btn {
-            padding: 15px 40px;
-            font-size: 1.3em;
-            background: #28a745;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-weight: bold;
-        }
-
-        .start-btn:hover {
-            background: #218838;
-        }
-
-        .back-to-mode {
-            padding: 10px 20px;
-            font-size: 1em;
-            background: #6c757d;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            margin-right: 20px;
-        }
-
-        .back-to-mode:hover {
-            background: #545b62;
-        }
-
-        /* 게임 화면 */
-        .game-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 30px;
-            padding: 15px;
-            background: #f8f9fa;
-            border-radius: 4px;
-            border: 1px solid #e9ecef;
-        }
-
-        .timer {
-            font-size: 1.5em;
-            font-weight: bold;
-            color: #dc3545;
-        }
-
-        .score-display {
-            font-size: 1.5em;
-            font-weight: bold;
-            color: #007bff;
-        }
-
-        .question {
-            font-size: 2em;
-            margin-bottom: 30px;
-            padding: 20px;
-            background: #f8f9fa;
-            border-radius: 4px;
-            font-weight: bold;
-            border: 1px solid #e9ecef;
-        }
-
-        .input-section {
-            margin-bottom: 30px;
-        }
-
-        input[type="number"] {
-            font-size: 1.5em;
-            padding: 15px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            width: 200px;
-            text-align: center;
-            background: white;
-            color: #333;
-            outline: none;
-            -moz-appearance: textfield;
-        }
-
-        input[type="number"]::-webkit-outer-spin-button,
-        input[type="number"]::-webkit-inner-spin-button {
-            -webkit-appearance: none;
-            margin: 0;
-        }
-
-        input[type="number"]:focus {
-            border-color: #007bff;
-        }
-
-        .buttons {
-            display: flex;
-            gap: 15px;
-            justify-content: center;
-            margin-bottom: 20px;
-        }
-
-        button {
-            padding: 15px 30px;
-            font-size: 1.2em;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            cursor: pointer;
-            font-weight: bold;
-            background: white;
-        }
-
-        .submit-btn {
-            background: #007bff;
-            color: white;
-            border-color: #007bff;
-        }
-
-        .submit-btn:hover {
-            background: #0056b3;
-            border-color: #0056b3;
-        }
-
-        .skip-btn {
-            background: #6c757d;
-            color: white;
-            border-color: #6c757d;
-        }
-
-        .skip-btn:hover {
-            background: #545b62;
-            border-color: #545b62;
-        }
-
-        .feedback {
-            font-size: 1.3em;
-            margin-top: 20px;
-            padding: 15px;
-            border-radius: 4px;
-            font-weight: bold;
-            min-height: 50px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .correct {
-            background: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-        }
-
-        .incorrect {
-            background: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
-        }
-
-        /* 결과 화면 */
-        .result-info {
-            margin-bottom: 30px;
-            padding: 20px;
-            background: #f8f9fa;
-            border-radius: 4px;
-            border: 1px solid #e9ecef;
-        }
-
-        .result-score {
-            font-size: 3em;
-            font-weight: bold;
-            color: #007bff;
-            margin-bottom: 10px;
-        }
-
-        .result-details {
-            font-size: 1.2em;
-            color: #666;
-            margin-bottom: 20px;
-        }
-
-        .back-btn {
-            background: #007bff;
-            color: white;
-            border-color: #007bff;
-            padding: 15px 40px;
-            font-size: 1.3em;
-        }
-
-        .back-btn:hover {
-            background: #0056b3;
-            border-color: #0056b3;
-        }
-
-        .stats {
-            display: flex;
-            justify-content: space-around;
-            margin-top: 20px;
-            padding: 15px;
-            background: #f8f9fa;
-            border-radius: 4px;
-            border: 1px solid #e9ecef;
-        }
-
-        .stat-item {
-            text-align: center;
-        }
-
-        .stat-value {
-            font-size: 1.5em;
-            font-weight: bold;
-            display: block;
-        }
-
-        .stat-label {
-            font-size: 0.9em;
-            opacity: 0.8;
-        }
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{font-family:Arial,sans-serif;background:#f5f5f5;min-height:100vh;display:flex;justify-content:center;align-items:center;color:#333}
+        .container{background:white;border-radius:8px;padding:40px;box-shadow:0 2px 10px rgba(0,0,0,.1);text-align:center;min-width:450px;border:1px solid #ddd}
+        h1{font-size:2.5em;margin-bottom:30px;color:#333}
+        .screen{display:none}
+        .screen.active{display:block}
+        button{padding:15px 30px;font-size:1.2em;border:1px solid #ddd;border-radius:4px;cursor:pointer;font-weight:bold;background:white;transition:all .3s ease}
+        .mode-btn{padding:20px 40px;font-size:1.5em;border:2px solid #007bff;color:#007bff}
+        .mode-btn:hover{background:#007bff;color:white}
+        .mode-btn.disabled{background:#f8f9fa;color:#6c757d;border-color:#6c757d;cursor:not-allowed}
+        .difficulty-btn{padding:12px 24px;font-size:1.1em}
+        .difficulty-btn.active,.difficulty-btn:hover{background:#007bff;color:white;border-color:#007bff}
+        .hardcore-btn{padding:15px 30px;font-size:1.2em;border:2px solid #dc3545;color:#dc3545;margin:20px 0}
+        .hardcore-btn:hover{background:#dc3545;color:white}
+        .hardcore-btn.active{background:#dc3545;color:white}
+        .primary-btn{background:#007bff;color:white;border-color:#007bff}
+        .primary-btn:hover{background:#0056b3;border-color:#0056b3}
+        .success-btn{background:#28a745;color:white;border:none}
+        .success-btn:hover{background:#218838}
+        .secondary-btn{background:#6c757d;color:white;border-color:#6c757d}
+        .secondary-btn:hover{background:#545b62;border-color:#545b62}
+        .card{background:#f8f9fa;border:1px solid #e9ecef;border-radius:4px;padding:20px;margin-bottom:30px}
+        .flex-center{display:flex;justify-content:center;align-items:center;gap:20px}
+        .flex-between{display:flex;justify-content:space-between;align-items:center}
+        .development-notice{color:#dc3545;font-size:1.2em;font-weight:bold;margin-top:15px;display:none}
+        .time-slider{width:100%;height:8px;border-radius:4px;background:#ddd;outline:none;-webkit-appearance:none;margin-bottom:15px}
+        .time-slider::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:20px;border-radius:50%;background:#007bff;cursor:pointer}
+        .time-slider::-moz-range-thumb{width:20px;height:20px;border-radius:50%;background:#007bff;cursor:pointer;border:none}
+        .time-display{font-size:1.3em;font-weight:bold;color:#007bff;margin-bottom:20px}
+        .game-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:30px;padding:15px;background:#f8f9fa;border-radius:4px;border:1px solid #e9ecef}
+        .timer{font-size:1.5em;font-weight:bold;color:#dc3545}
+        .question-timer{font-size:1.2em;font-weight:bold;color:#ff6b35;margin-top:10px;margin-bottom:20px}
+        .score-display{font-size:1.5em;font-weight:bold;color:#007bff}
+        .question{font-size:2em;font-weight:bold;margin-bottom:30px}
+        input[type="number"]{font-size:1.5em;padding:15px;border:1px solid #ddd;border-radius:4px;width:200px;text-align:center;background:white;color:#333;outline:none;-moz-appearance:textfield;margin-bottom:30px}
+        input[type="number"]::-webkit-outer-spin-button,input[type="number"]::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+        input[type="number"]:focus{border-color:#007bff}
+        .buttons{display:flex;gap:15px;justify-content:center;margin-bottom:20px}
+        .feedback{font-size:1.3em;margin-top:20px;padding:15px;border-radius:4px;font-weight:bold;min-height:50px;display:flex;align-items:center;justify-content:center}
+        .feedback.correct{background:#d4edda;color:#155724;border:1px solid #c3e6cb}
+        .feedback.incorrect{background:#f8d7da;color:#721c24;border:1px solid #f5c6cb}
+        @keyframes correctEffect{0%{transform:scale(1)}50%{transform:scale(1.1);background:#28a745;color:white}100%{transform:scale(1)}}
+        @keyframes incorrectEffect{0%{transform:translateX(0)}25%{transform:translateX(-10px)}75%{transform:translateX(10px)}100%{transform:translateX(0)}}
+        @keyframes scoreEffect{0%{transform:scale(1)}50%{transform:scale(1.3);color:#28a745}100%{transform:scale(1)}}
+        .question.correct-flash{animation:correctEffect .6s ease}
+        .question.incorrect-flash{animation:incorrectEffect .5s ease}
+        .score-display.score-flash{animation:scoreEffect .6s ease}
+        .buttons button:disabled{opacity:.6;cursor:not-allowed}
+        .result-score{font-size:3em;font-weight:bold;color:#007bff;margin-bottom:10px}
+        .result-details{font-size:1.2em;color:#666;margin-bottom:30px}
+        .stats{display:flex;justify-content:space-around;margin-top:20px;margin-bottom:30px;padding:15px;background:#f8f9fa;border-radius:4px;border:1px solid #e9ecef}
+        .stat-item{text-align:center}
+        .stat-value{font-size:1.5em;font-weight:bold;display:block}
+        .stat-label{font-size:.9em;opacity:.8}
+        .hardcore-indicator{background:#dc3545;color:white;padding:5px 15px;border-radius:20px;font-size:0.9em;margin-left:10px}
+        .section{margin-bottom:20px}
     </style>
 </head>
 <body>
@@ -401,7 +70,7 @@
             <h1>사칙연산 퀴즈</h1>
             
             <div class="mode-selection">
-                <div class="mode-buttons">
+                <div class="flex-center">
                     <button class="mode-btn" onclick="selectMode('single')">개인 모드</button>
                     <button class="mode-btn" onclick="selectMode('multi')">멀티 모드</button>
                 </div>
@@ -415,25 +84,32 @@
         <div id="startScreen" class="screen">
             <h1>사칙연산 퀴즈</h1>
             
-            <div class="difficulty-section">
-                <div class="difficulty-buttons">
+            <div class="section difficulty-section">
+                <div class="flex-center">
                     <button class="difficulty-btn active" onclick="setDifficulty('easy')">쉬움</button>
                     <button class="difficulty-btn" onclick="setDifficulty('medium')">중간</button>
                     <button class="difficulty-btn" onclick="setDifficulty('hard')">어려움</button>
                 </div>
             </div>
 
-            <div class="time-section">
+            <div class="section hardcore-section">
+                <button class="hardcore-btn" onclick="toggleHardcore()">
+                    <div>하드코어 모드 OFF</div>
+                    <div style="font-size:0.8em;opacity:0.8;margin-top:3px">문제마다 3초 제한</div>
+                </button>
+            </div>
+
+            <div class="section time-section">
                 <div class="time-label">게임 시간</div>
                 <div class="time-slider-container">
-                    <input type="range" class="time-slider" id="timeSlider" min="0" max="4" value="1" oninput="updateTimeDisplay()">
+                    <input type="range" class="time-slider" id="timeSlider" min="0" max="5" value="1" oninput="updateTimeDisplay()">
                 </div>
                 <div class="time-display" id="timeDisplay">1분</div>
             </div>
 
             <div>
-                <button class="back-to-mode" onclick="goToModeSelection()">모드 선택</button>
-                <button class="start-btn" onclick="startGame()">게임 시작</button>
+                <button class="secondary-btn" onclick="goToModeSelection()">모드 선택</button>
+                <button class="success-btn" onclick="startGame()">게임 시작</button>
             </div>
         </div>
 
@@ -441,20 +117,24 @@
         <div id="gameScreen" class="screen">
             <div class="game-header">
                 <div class="timer" id="timer">1:00</div>
-                <div class="score-display">점수: <span id="score">0</span></div>
+                <div class="score-display" id="score-display">점수: <span id="score">0</span>
+                    <span id="hardcoreIndicator" class="hardcore-indicator" style="display:none">하드코어</span>
+                </div>
             </div>
             
-            <div class="question" id="question">
+            <div class="question card" id="question">
                 문제를 불러오는 중...
             </div>
+            
+            <div class="question-timer" id="questionTimer" style="display:none"></div>
             
             <div class="input-section">
                 <input type="number" id="answer" placeholder="답을 입력하세요" autocomplete="off">
             </div>
             
             <div class="buttons">
-                <button class="submit-btn" onclick="checkAnswer()">정답 확인</button>
-                <button class="skip-btn" onclick="skipQuestion()">다음 문제</button>
+                <button class="primary-btn" onclick="checkAnswer()">정답 확인</button>
+                <button class="secondary-btn" onclick="skipQuestion()">다음 문제</button>
             </div>
             
             <div class="feedback" id="feedback"></div>
@@ -464,9 +144,10 @@
         <div id="resultScreen" class="screen">
             <h1>게임 결과</h1>
             
-            <div class="result-info">
+            <div class="card">
                 <div class="result-score" id="finalScore">0점</div>
                 <div class="result-details" id="resultDetails"></div>
+                <div style="font-size:1.1em;color:#666;margin-top:10px;" id="difficultyInfo"></div>
             </div>
 
             <div class="stats">
@@ -484,7 +165,7 @@
                 </div>
             </div>
 
-            <button class="back-btn" onclick="goToStart()">다시 시작</button>
+            <button class="primary-btn" onclick="goToStart()">다시 시작</button>
         </div>
     </div>
 
@@ -498,10 +179,14 @@ let gt = 60;
 let tl = 0;
 let gtm = null;
 let gm = 'single';
+let isAnswering = false;
+let isHardcore = false;
+let questionTimeLeft = 0;
+let questionTimer = null;
 
 const ops = ['+', '-', '×', '÷'];
-const tos = [30, 60, 120, 180, 300];
-const tls = ['30초', '1분', '2분', '3분', '5분'];
+const tos = [15, 30, 60, 120, 180, 300];
+const tls = ['15초', '30초', '1분', '2분', '3분', '5분'];
 
 function selectMode(m) {
     const dn = document.getElementById('developmentNotice');
@@ -533,6 +218,18 @@ function setDifficulty(lv) {
     document.querySelector(`[onclick="setDifficulty('${lv}')"]`).classList.add('active');
 }
 
+function toggleHardcore() {
+    isHardcore = !isHardcore;
+    const btn = document.querySelector('.hardcore-btn');
+    if (isHardcore) {
+        btn.classList.add('active');
+        btn.innerHTML = '<div>하드코어 모드 ON</div><div style="font-size:0.8em;opacity:0.8;margin-top:3px">문제마다 3초 제한</div>';
+    } else {
+        btn.classList.remove('active');
+        btn.innerHTML = '<div>하드코어 모드 OFF</div><div style="font-size:0.8em;opacity:0.8;margin-top:3px">문제마다 3초 제한</div>';
+    }
+}
+
 function updateTimeDisplay() {
     const sv = document.getElementById('timeSlider').value;
     gt = tos[sv];
@@ -547,6 +244,17 @@ function startGame() {
     tq = 0;
     ca = 0;
     tl = gt;
+
+    // 하드코어 모드 표시
+    const hardcoreIndicator = document.getElementById('hardcoreIndicator');
+    const questionTimerEl = document.getElementById('questionTimer');
+    if (isHardcore) {
+        hardcoreIndicator.style.display = 'inline';
+        questionTimerEl.style.display = 'block';
+    } else {
+        hardcoreIndicator.style.display = 'none';
+        questionTimerEl.style.display = 'none';
+    }
 
     updateTimerDisplay();
     gtm = setInterval(() => {
@@ -572,23 +280,23 @@ function generateQuestion() {
 
     switch(op) {
         case '+':
-            n1 = Math.floor(Math.random() * (df === 'easy' ? 20 : df === 'medium' ? 50 : 100)) + 1;
-            n2 = Math.floor(Math.random() * (df === 'easy' ? 20 : df === 'medium' ? 50 : 100)) + 1;
+            n1 = Math.floor(Math.random() * (df === 'easy' ? 20 : df === 'medium' ? 50 : 200)) + 1;
+            n2 = Math.floor(Math.random() * (df === 'easy' ? 20 : df === 'medium' ? 50 : 200)) + 1;
             ans = n1 + n2;
             break;
         case '-':
-            n1 = Math.floor(Math.random() * (df === 'easy' ? 30 : df === 'medium' ? 50 : 100)) + (df === 'easy' ? 10 : df === 'medium' ? 20 : 50);
+            n1 = Math.floor(Math.random() * (df === 'easy' ? 30 : df === 'medium' ? 50 : 300)) + (df === 'easy' ? 10 : df === 'medium' ? 20 : 100);
             n2 = Math.floor(Math.random() * n1) + 1;
             ans = n1 - n2;
             break;
         case '×':
-            n1 = Math.floor(Math.random() * (df === 'easy' ? 10 : df === 'medium' ? 15 : 25)) + 1;
-            n2 = Math.floor(Math.random() * (df === 'easy' ? 10 : df === 'medium' ? 15 : 25)) + 1;
+            n1 = Math.floor(Math.random() * (df === 'easy' ? 10 : df === 'medium' ? 15 : 50)) + 1;
+            n2 = Math.floor(Math.random() * (df === 'easy' ? 10 : df === 'medium' ? 15 : 50)) + 1;
             ans = n1 * n2;
             break;
         case '÷':
-            n2 = Math.floor(Math.random() * (df === 'easy' ? 10 : df === 'medium' ? 15 : 20)) + 1;
-            ans = Math.floor(Math.random() * (df === 'easy' ? 10 : df === 'medium' ? 15 : 20)) + 1;
+            n2 = Math.floor(Math.random() * (df === 'easy' ? 10 : df === 'medium' ? 15 : 30)) + 1;
+            ans = Math.floor(Math.random() * (df === 'easy' ? 10 : df === 'medium' ? 15 : 30)) + 1;
             n1 = n2 * ans;
             break;
     }
@@ -600,11 +308,70 @@ function generateQuestion() {
     document.getElementById('feedback').textContent = '';
     document.getElementById('feedback').className = 'feedback';
     document.getElementById('answer').focus();
+    
+    // 버튼 활성화
+    isAnswering = false;
+    document.querySelectorAll('.buttons button').forEach(btn => {
+        btn.disabled = false;
+    });
+
+    // 하드코어 모드 문제 타이머 시작
+    if (isHardcore) {
+        questionTimeLeft = 3;
+        updateQuestionTimer();
+        questionTimer = setInterval(() => {
+            questionTimeLeft--;
+            updateQuestionTimer();
+            if (questionTimeLeft <= 0) {
+                clearInterval(questionTimer);
+                autoSkipQuestion();
+            }
+        }, 1000);
+    }
+}
+
+function updateQuestionTimer() {
+    const questionTimerEl = document.getElementById('questionTimer');
+    questionTimerEl.textContent = `남은 시간: ${questionTimeLeft}초`;
+}
+
+function autoSkipQuestion() {
+    if (isAnswering) return;
+    
+    isAnswering = true;
+    document.querySelectorAll('.buttons button').forEach(btn => {
+        btn.disabled = true;
+    });
+
+    tq++;
+    const fbe = document.getElementById('feedback');
+    const questionEl = document.getElementById('question');
+    
+    fbe.textContent = `시간 초과! 정답은 ${cq.answer}였습니다.`;
+    fbe.className = 'feedback incorrect';
+    
+    questionEl.classList.add('incorrect-flash');
+    
+    setTimeout(() => {
+        questionEl.classList.remove('incorrect-flash');
+    }, 500);
+    
+    setTimeout(() => generateQuestion(), 1000);
 }
 
 function checkAnswer() {
+    // 연타 방지
+    if (isAnswering) return;
+    
+    // 하드코어 모드 타이머 정리
+    if (isHardcore && questionTimer) {
+        clearInterval(questionTimer);
+    }
+    
     const ua = parseInt(document.getElementById('answer').value);
     const fbe = document.getElementById('feedback');
+    const questionEl = document.getElementById('question');
+    const scoreEl = document.getElementById('score-display');
 
     if (isNaN(ua)) {
         fbe.textContent = '숫자를 입력해주세요!';
@@ -612,15 +379,39 @@ function checkAnswer() {
         return;
     }
 
+    // 답변 처리 중으로 설정
+    isAnswering = true;
+    document.querySelectorAll('.buttons button').forEach(btn => {
+        btn.disabled = true;
+    });
+
     tq++;
     if (ua === cq.answer) {
         sc += 10;
         ca++;
         fbe.textContent = '정답입니다!';
         fbe.className = 'feedback correct';
+        
+        // 정답 이펙트
+        questionEl.classList.add('correct-flash');
+        scoreEl.classList.add('score-flash');
+        
+        // 애니메이션 정리
+        setTimeout(() => {
+            questionEl.classList.remove('correct-flash');
+            scoreEl.classList.remove('score-flash');
+        }, 600);
     } else {
         fbe.textContent = `틀렸습니다. 정답은 ${cq.answer}입니다.`;
         fbe.className = 'feedback incorrect';
+        
+        // 오답 이펙트
+        questionEl.classList.add('incorrect-flash');
+        
+        // 애니메이션 정리
+        setTimeout(() => {
+            questionEl.classList.remove('incorrect-flash');
+        }, 500);
     }
 
     document.getElementById('score').textContent = sc;
@@ -628,23 +419,54 @@ function checkAnswer() {
 }
 
 function skipQuestion() {
+    // 연타 방지
+    if (isAnswering) return;
+    
+    // 하드코어 모드 타이머 정리
+    if (isHardcore && questionTimer) {
+        clearInterval(questionTimer);
+    }
+    
+    isAnswering = true;
+    document.querySelectorAll('.buttons button').forEach(btn => {
+        btn.disabled = true;
+    });
+
     tq++;
     const fbe = document.getElementById('feedback');
+    const questionEl = document.getElementById('question');
+    
     fbe.textContent = `정답은 ${cq.answer}였습니다.`;
     fbe.className = 'feedback incorrect';
+    
+    // 스킵 이펙트 (오답과 동일)
+    questionEl.classList.add('incorrect-flash');
+    
+    // 애니메이션 정리
+    setTimeout(() => {
+        questionEl.classList.remove('incorrect-flash');
+    }, 500);
+    
     setTimeout(() => generateQuestion(), 1000);
 }
 
 function endGame() {
     clearInterval(gtm);
+    if (isHardcore && questionTimer) {
+        clearInterval(questionTimer);
+    }
+    
     document.getElementById('gameScreen').classList.remove('active');
     document.getElementById('resultScreen').classList.add('active');
 
     document.getElementById('finalScore').textContent = sc + '점';
 
-    const dft = df === 'easy' ? '쉬움' : df === 'medium' ? '중간' : '어려움';
     const gtt = tls[tos.indexOf(gt)];
-    document.getElementById('resultDetails').textContent = `난이도: ${dft} | 시간: ${gtt}`;
+    document.getElementById('resultDetails').textContent = `게임 시간: ${gtt}`;
+
+    const dft = df === 'easy' ? '쉬움' : df === 'medium' ? '중간' : '어려움';
+    const hardcoreText = isHardcore ? '-하드코어' : '';
+    document.getElementById('difficultyInfo').textContent = `난이도: ${dft}${hardcoreText}`;
 
     document.getElementById('totalQuestions').textContent = tq;
     document.getElementById('correctAnswers').textContent = ca;
