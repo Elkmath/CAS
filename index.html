@@ -56,6 +56,20 @@
         .stats{display:flex;justify-content:space-around;margin-top:20px;margin-bottom:30px;padding:15px;background:#f8f9fa;border-radius:4px;border:1px solid #e9ecef}
         .stat-item{text-align:center}.stat-value{font-size:1.5em;font-weight:bold;display:block}.stat-label{font-size:.9em;opacity:.8}
         .section{margin-bottom:40px}
+        
+        /* 모바일 반응형 */
+        @media (max-width: 480px) {
+            .container{min-width:auto;width:90%;padding:20px}
+            h1{font-size:2em}
+            .mode-btn{padding:15px 25px;font-size:1.2em}
+            .flex-center{flex-direction:column;gap:15px}
+            .special-modes{flex-direction:column;align-items:center}
+            .time-display{font-size:1.5em}
+            .question{font-size:1.5em}
+            input[type="number"]{width:150px;font-size:1.2em;padding:10px}
+            .buttons{flex-direction:column;align-items:center}
+            .stats{flex-direction:column;gap:10px}
+        }
     </style>
 </head>
 <body>
@@ -92,8 +106,8 @@
                 <div class="time-control">
                     <div class="time-display" id="timeDisplay">1분</div>
                     <div class="time-btn-group">
-                        <button class="time-btn" onmousedown="startTimeAdjust(1)" onmouseup="stopTimeAdjust()" onmouseleave="stopTimeAdjust()">▲</button>
-                        <button class="time-btn" onmousedown="startTimeAdjust(-1)" onmouseup="stopTimeAdjust()" onmouseleave="stopTimeAdjust()">▼</button>
+                        <button class="time-btn" id="timeUpBtn">▲</button>
+                        <button class="time-btn" id="timeDownBtn">▼</button>
                     </div>
                 </div>
             </div>
@@ -228,6 +242,48 @@
         function updateTimeDisplay() {
             const h = Math.floor(s.gt / 3600), m = Math.floor((s.gt % 3600) / 60), sec = s.gt % 60;
             document.getElementById('timeDisplay').textContent = h > 0 ? `${h}시간${m > 0 ? ` ${m}분` : ''}` : m > 0 ? `${m}분` : `${sec}초`;
+        }
+
+        // 모바일 호환 시간 조정 버튼 이벤트 리스너
+        function initTimeButtons() {
+            const upBtn = document.getElementById('timeUpBtn');
+            const downBtn = document.getElementById('timeDownBtn');
+
+            // 마우스 이벤트 (데스크톱)
+            upBtn.addEventListener('mousedown', () => startTimeAdjust(1));
+            upBtn.addEventListener('mouseup', stopTimeAdjust);
+            upBtn.addEventListener('mouseleave', stopTimeAdjust);
+
+            downBtn.addEventListener('mousedown', () => startTimeAdjust(-1));
+            downBtn.addEventListener('mouseup', stopTimeAdjust);
+            downBtn.addEventListener('mouseleave', stopTimeAdjust);
+
+            // 터치 이벤트 (모바일)
+            upBtn.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                startTimeAdjust(1);
+            });
+            upBtn.addEventListener('touchend', (e) => {
+                e.preventDefault();
+                stopTimeAdjust();
+            });
+            upBtn.addEventListener('touchcancel', (e) => {
+                e.preventDefault();
+                stopTimeAdjust();
+            });
+
+            downBtn.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                startTimeAdjust(-1);
+            });
+            downBtn.addEventListener('touchend', (e) => {
+                e.preventDefault();
+                stopTimeAdjust();
+            });
+            downBtn.addEventListener('touchcancel', (e) => {
+                e.preventDefault();
+                stopTimeAdjust();
+            });
         }
 
         function startGame() {
@@ -430,7 +486,11 @@
             if (e.key === 'Enter') checkAnswer();
         });
 
-        updateTimeDisplay();
+        // 페이지 로드 시 초기화
+        document.addEventListener('DOMContentLoaded', function() {
+            updateTimeDisplay();
+            initTimeButtons();
+        });
     </script>
 </body>
 </html>
