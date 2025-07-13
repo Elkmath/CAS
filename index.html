@@ -30,10 +30,12 @@
         .flex-center{display:flex;justify-content:center;align-items:center;gap:20px}
         .flex-between{display:flex;justify-content:space-between;align-items:center}
         .development-notice{color:#dc3545;font-size:1.2em;font-weight:bold;margin-top:15px;display:none}
-        .time-slider{width:100%;height:8px;border-radius:4px;background:#ddd;outline:none;-webkit-appearance:none;margin-bottom:15px}
-        .time-slider::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:20px;border-radius:50%;background:#007bff;cursor:pointer}
-        .time-slider::-moz-range-thumb{width:20px;height:20px;border-radius:50%;background:#007bff;cursor:pointer;border:none}
-        .time-display{font-size:1.3em;font-weight:bold;color:#007bff;margin-bottom:20px}
+        .time-control{display:flex;align-items:center;justify-content:center;gap:15px;margin-bottom:15px}
+        .time-btn-group{display:flex;flex-direction:column;gap:2px;height:52px}
+        .time-btn{width:35px;height:25px;border-radius:6px;background:#007bff;color:white;border:none;font-size:1em;font-weight:bold;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s ease;user-select:none}
+        .time-btn:hover{background:#0056b3;transform:scale(1.05)}
+        .time-btn:active{transform:scale(0.95);background:#004085}
+        .time-display{font-size:1.8em;font-weight:bold;color:#007bff;min-width:120px;text-align:center;height:52px;display:flex;align-items:center;justify-content:center}
         .game-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:30px;padding:15px;background:#f8f9fa;border-radius:4px;border:1px solid #e9ecef}
         .timer{font-size:1.5em;font-weight:bold;color:#dc3545}
         .question-timer{font-size:1.2em;font-weight:bold;color:#ff6b35;margin-top:10px;margin-bottom:20px}
@@ -100,11 +102,24 @@
             </div>
 
             <div class="section time-section">
-                <div class="time-label">게임 시간</div>
-                <div class="time-slider-container">
-                    <input type="range" class="time-slider" id="timeSlider" min="0" max="5" value="1" oninput="updateTimeDisplay()">
+                <div class="time-label" style="margin-bottom:10px;font-size:1.2em;font-weight:bold">게임 시간</div>
+                <div class="time-control">
+                    <div class="time-display" id="timeDisplay">1분</div>
+                    <div class="time-btn-group">
+                        <button class="time-btn" 
+                                onmousedown="startTimeAdjust(1)" 
+                                onmouseup="stopTimeAdjust()" 
+                                onmouseleave="stopTimeAdjust()"
+                                ontouchstart="startTimeAdjust(1)" 
+                                ontouchend="stopTimeAdjust()">▲</button>
+                        <button class="time-btn" 
+                                onmousedown="startTimeAdjust(-1)" 
+                                onmouseup="stopTimeAdjust()" 
+                                onmouseleave="stopTimeAdjust()"
+                                ontouchstart="startTimeAdjust(-1)" 
+                                ontouchend="stopTimeAdjust()">▼</button>
+                    </div>
                 </div>
-                <div class="time-display" id="timeDisplay">1분</div>
             </div>
 
             <div>
@@ -175,7 +190,7 @@ let sc = 0;
 let tq = 0;
 let ca = 0;
 let df = 'easy';
-let gt = 60;
+let gt = 60; // 기본값 60초 (1분)
 let tl = 0;
 let gtm = null;
 let gm = 'single';
@@ -183,10 +198,10 @@ let isAnswering = false;
 let isHardcore = false;
 let questionTimeLeft = 0;
 let questionTimer = null;
+let timeAdjustInterval = null;
+let timeAdjustTimeout = null;
 
 const ops = ['+', '-', '×', '÷'];
-const tos = [15, 30, 60, 120, 180, 300];
-const tls = ['15초', '30초', '1분', '2분', '3분', '5분'];
 
 function selectMode(m) {
     const dn = document.getElementById('developmentNotice');
@@ -230,10 +245,78 @@ function toggleHardcore() {
     }
 }
 
+function adjustTime(direction) {
+    const currentTime = gt;
+    let newTime;
+    
+    if (direction === 1) { // 증가
+        if (currentTime < 60) {
+            // 초 단위에서 분 단위로 (1분)
+            newTime = 60;
+        } else if (currentTime < 3600) {
+            // 분 단위에서 증가 (최대 60분)
+            newTime = currentTime + 60;
+        } else {
+            // 시간 단위에서 증가 (최대 24시간)
+            newTime = Math.min(currentTime + 3600, 24 * 3600);
+        }
+    } else { // 감소
+        if (currentTime > 3600) {
+            // 시간 단위에서 감소 (최소 1시간)
+            newTime = currentTime - 3600;
+        } else if (currentTime > 60) {
+            // 분 단위에서 감소 (최소 1분)
+            newTime = currentTime - 60;
+        } else {
+            // 초 단위에서 감소 (최소 15초)
+            newTime = Math.max(currentTime - 1, 15);
+        }
+    }
+    
+    gt = newTime;
+    updateTimeDisplay();
+}
+
+function startTimeAdjust(direction) {
+    // 첫 번째 조정 즉시 실행
+    adjustTime(direction);
+    
+    // 300ms 후 연속 조정 시작 (더 빠른 반응)
+    timeAdjustTimeout = setTimeout(() => {
+        timeAdjustInterval = setInterval(() => {
+            adjustTime(direction);
+        }, 50); // 0.05초마다 조정 (더 빠른 속도)
+    }, 300);
+}
+
+function stopTimeAdjust() {
+    if (timeAdjustTimeout) {
+        clearTimeout(timeAdjustTimeout);
+        timeAdjustTimeout = null;
+    }
+    if (timeAdjustInterval) {
+        clearInterval(timeAdjustInterval);
+        timeAdjustInterval = null;
+    }
+}
+
 function updateTimeDisplay() {
-    const sv = document.getElementById('timeSlider').value;
-    gt = tos[sv];
-    document.getElementById('timeDisplay').textContent = tls[sv];
+    const hours = Math.floor(gt / 3600);
+    const minutes = Math.floor((gt % 3600) / 60);
+    const seconds = gt % 60;
+    
+    let displayText = '';
+    
+    if (hours > 0) {
+        displayText = `${hours}시간`;
+        if (minutes > 0) displayText += ` ${minutes}분`;
+    } else if (minutes > 0) {
+        displayText = `${minutes}분`;
+    } else {
+        displayText = `${seconds}초`;
+    }
+    
+    document.getElementById('timeDisplay').textContent = displayText;
 }
 
 function startGame() {
@@ -269,9 +352,19 @@ function startGame() {
 }
 
 function updateTimerDisplay() {
-    const m = Math.floor(tl / 60);
-    const s = tl % 60;
-    document.getElementById('timer').textContent = `${m}:${s.toString().padStart(2, '0')}`;
+    const hours = Math.floor(tl / 3600);
+    const minutes = Math.floor((tl % 3600) / 60);
+    const seconds = tl % 60;
+    
+    let displayText = '';
+    
+    if (hours > 0) {
+        displayText = `${hours}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    } else {
+        displayText = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+    }
+    
+    document.getElementById('timer').textContent = displayText;
 }
 
 function generateQuestion() {
@@ -461,8 +554,22 @@ function endGame() {
 
     document.getElementById('finalScore').textContent = sc + '점';
 
-    const gtt = tls[tos.indexOf(gt)];
-    document.getElementById('resultDetails').textContent = `게임 시간: ${gtt}`;
+    // 게임 시간 표시
+    const hours = Math.floor(gt / 3600);
+    const minutes = Math.floor((gt % 3600) / 60);
+    const seconds = gt % 60;
+    
+    let gameTimeText = '';
+    if (hours > 0) {
+        gameTimeText = `${hours}시간`;
+        if (minutes > 0) gameTimeText += ` ${minutes}분`;
+    } else if (minutes > 0) {
+        gameTimeText = `${minutes}분`;
+    } else {
+        gameTimeText = `${seconds}초`;
+    }
+    
+    document.getElementById('resultDetails').textContent = `게임 시간: ${gameTimeText}`;
 
     const dft = df === 'easy' ? '쉬움' : df === 'medium' ? '중간' : '어려움';
     const hardcoreText = isHardcore ? '-하드코어' : '';
@@ -482,6 +589,7 @@ document.getElementById('answer').addEventListener('keypress', function(e) {
     if (e.key === 'Enter') checkAnswer();
 });
 
+// 초기 시간 표시 업데이트
 updateTimeDisplay();
     </script>
 </body>
