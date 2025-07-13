@@ -200,8 +200,15 @@
 
         function adjustTime(dir) {
             let nt = s.gt;
-            if (dir === 1) nt = nt < 60 ? 60 : nt < 3600 ? nt + 60 : Math.min(nt + 3600, 86400);
-            else nt = nt > 3600 ? nt - 3600 : nt > 60 ? nt - 60 : Math.max(nt - 1, 15);
+            if (dir === 1) {
+                if (nt < 60) nt += 1;
+                else if (nt < 3600) nt += 60;
+                else nt = Math.min(nt + 3600, 86400);
+            } else {
+                if (nt > 3600) nt -= 3600;
+                else if (nt > 60) nt -= 60;
+                else nt = Math.max(nt - 1, 15);
+            }
             s.gt = nt;
             updateTimeDisplay();
         }
@@ -252,14 +259,32 @@
             
             if (s.im && Math.random() < 0.3) {
                 if (Math.random() < 0.5) {
-                    n1 = Math.floor(Math.random() * (s.df === 'easy' ? 12 : s.df === 'medium' ? 15 : 20)) + 1;
+                    let range;
+                    if (s.df === 'easy') {
+                        range = 12;
+                    } else if (s.df === 'medium') {
+                        range = 15;
+                    } else {
+                        range = 99;
+                    }
+                    n1 = Math.floor(Math.random() * range) + 1;
+                    if (s.df === 'hard' && n1 < 10) n1 += 10;
                     ans = n1 * n1;
                     cq = {num1: n1, num2: null, operator: '²', answer: ans};
                     document.getElementById('question').textContent = `${n1}² = ?`;
                 } else {
-                    const ps = s.df === 'easy' ? [1,4,9,16,25,36,49,64,81,100] : 
-                              s.df === 'medium' ? [1,4,9,16,25,36,49,64,81,100,121,144,169,196,225] :
-                              [1,4,9,16,25,36,49,64,81,100,121,144,169,196,225,256,289,324,361,400];
+                    let ps;
+                    if (s.df === 'easy') {
+                        ps = [1,4,9,16,25,36,49,64,81,100];
+                    } else if (s.df === 'medium') {
+                        ps = [1,4,9,16,25,36,49,64,81,100,121,144,169,196,225];
+                    } else {
+                        const squares = [];
+                        for (let i = 20; i <= 99; i++) {
+                            squares.push(i * i);
+                        }
+                        ps = squares;
+                    }
                     ans = ps[Math.floor(Math.random() * ps.length)];
                     n1 = Math.sqrt(ans);
                     cq = {num1: ans, num2: null, operator: 'sqrt', answer: n1};
