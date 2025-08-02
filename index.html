@@ -3,190 +3,31 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>텍스트 차이점 하이라이터</title>
+    <title>English Comparison Tool</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Arial', sans-serif;
-            background: #f8f9fa;
-            min-height: 100vh;
-            padding: 20px;
-            color: #333;
-        }
-
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 10px;
-            padding: 40px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        }
-
-        .header {
-            text-align: center;
-            margin-bottom: 40px;
-        }
-
-        .header h1 {
-            font-size: 2rem;
-            font-weight: 600;
-            color: #333;
-            margin-bottom: 10px;
-        }
-
-        .header p {
-            color: #666;
-            font-size: 1rem;
-        }
-
-        .input-section {
-            margin-bottom: 30px;
-        }
-
-        .input-group {
-            margin-bottom: 20px;
-        }
-
-        .input-group label {
-            display: block;
-            font-weight: 500;
-            margin-bottom: 8px;
-            color: #555;
-            font-size: 0.9rem;
-        }
-
-        .input-group textarea {
-            width: 100%;
-            min-height: 100px;
-            padding: 12px;
-            border: 2px solid #ddd;
-            border-radius: 8px;
-            resize: none;
-            font-size: 14px;
-            font-family: inherit;
-            transition: border-color 0.3s ease;
-            background: white;
-            overflow: hidden;
-        }
-
-        .input-group textarea:focus {
-            outline: none;
-            border-color: #007bff;
-        }
-
-        .input-group textarea::placeholder {
-            color: rgba(0, 0, 0, 0.4);
-            opacity: 1;
-        }
-
-        .input-group textarea:focus::placeholder {
-            opacity: 0;
-        }
-
-        .button-container {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-
-        .compare-btn {
-            background: transparent;
-            color: #333;
-            border: 2px solid #ddd;
-            padding: 12px 30px;
-            font-size: 1rem;
-            font-weight: 500;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .compare-btn:hover {
-            border-color: #28a745;
-            color: #28a745;
-        }
-
-        .compare-btn:active {
-            transform: translateY(1px);
-        }
-
-        .results-section {
-            margin-top: 30px;
-        }
-
-        .result-group {
-            margin-bottom: 25px;
-        }
-
-        .result-group h3 {
-            margin-bottom: 10px;
-            color: #555;
-            font-size: 1rem;
-            font-weight: 500;
-        }
-
-        .result-text {
-            line-height: 1.6;
-            font-size: 16px;
-            min-height: 80px;
-            padding: 15px;
-            background: #f8f9fa;
-            border-radius: 8px;
-            border: 1px solid #e9ecef;
-        }
-
-        .legend {
-            text-align: center;
-            margin-top: 20px;
-            padding: 15px;
-            background: #f8f9fa;
-            border-radius: 8px;
-            font-size: 0.9rem;
-            color: #666;
-        }
-
-        .legend-color {
-            display: inline-block;
-            width: 16px;
-            height: 16px;
-            background-color: #ff6b6b;
-            border-radius: 3px;
-            margin-right: 8px;
-            vertical-align: middle;
-        }
-
-        /* 하이라이트 색상 - 진한 파랑 배경에 흰색 글자 */
-        .highlight-1, .highlight-2, .highlight-3, .highlight-4, 
-        .highlight-5, .highlight-6, .highlight-7, .highlight-8 { 
-            background-color: #1565c0; 
-            color: white; 
-            padding: 2px 6px; 
-            border-radius: 4px; 
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        /* 호버 시 밝은 파랑으로 */
-        .highlight-glow {
-            background-color: #42a5f5 !important;
-            box-shadow: 0 0 10px rgba(66, 165, 245, 0.6);
-            transform: scale(1.05);
-        }
-
-        @media (max-width: 768px) {
-            .container {
-                padding: 20px;
-            }
-            
-            .header h1 {
-                font-size: 1.5rem;
-            }
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; background: #f8f9fa; min-height: 100vh; padding: 20px; color: #333; }
+        .container { max-width: 800px; margin: 0 auto; background: white; border-radius: 10px; padding: 40px; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); }
+        .header { text-align: center; margin-bottom: 40px; }
+        .header h1 { font-size: 2rem; font-weight: 600; color: #333; }
+        .input-section { margin-bottom: 30px; }
+        .input-group { margin-bottom: 20px; }
+        .input-group label { display: block; font-weight: 500; margin-bottom: 8px; color: #555; font-size: 0.9rem; }
+        .input-group textarea { width: 100%; min-height: 100px; padding: 12px; border: 2px solid #ddd; border-radius: 8px; resize: none; font-size: 14px; font-family: inherit; transition: border-color 0.3s ease; background: white; overflow: hidden; }
+        .input-group textarea:focus { outline: none; border-color: #007bff; }
+        .input-group textarea::placeholder { color: rgba(0, 0, 0, 0.4); opacity: 1; }
+        .input-group textarea:focus::placeholder { opacity: 0; }
+        .button-container { text-align: center; margin-bottom: 30px; }
+        .compare-btn { background: transparent; color: #333; border: 2px solid #ddd; padding: 12px 30px; font-size: 1rem; font-weight: 500; border-radius: 8px; cursor: pointer; transition: all 0.3s ease; }
+        .compare-btn:hover { border-color: #28a745; color: #28a745; box-shadow: 0 0 15px rgba(40, 167, 69, 0.3); }
+        .compare-btn:active { transform: translateY(1px); }
+        .results-section { margin-top: 30px; }
+        .result-group { margin-bottom: 25px; }
+        .result-group h3 { margin-bottom: 10px; color: #555; font-size: 1rem; font-weight: 500; }
+        .result-text { line-height: 1.6; font-size: 16px; min-height: 80px; padding: 15px; background: #f8f9fa; border-radius: 8px; border: 1px solid #e9ecef; }
+        .highlight-1, .highlight-2, .highlight-3, .highlight-4, .highlight-5, .highlight-6, .highlight-7, .highlight-8 { background-color: #1565c0; color: white; padding: 2px 6px; border-radius: 4px; cursor: pointer; transition: all 0.3s ease; }
+        .highlight-glow { background-color: #42a5f5 !important; box-shadow: 0 0 10px rgba(66, 165, 245, 0.6); transform: scale(1.05); }
+        @media (max-width: 768px) { .container { padding: 20px; } .header h1 { font-size: 1.5rem; } }
     </style>
 </head>
 <body>
@@ -194,7 +35,6 @@
         <div class="header">
             <h1>English Comparison Tool</h1>
         </div>
-
         <div class="input-section">
             <div class="input-group">
                 <label for="text1">첫 번째 텍스트</label>
@@ -205,215 +45,104 @@
                 <textarea id="text2" placeholder="텍스트를 입력해주세요"></textarea>
             </div>
         </div>
-
         <div class="button-container">
             <button class="compare-btn" onclick="compareTexts()">텍스트 비교하기</button>
         </div>
-
-        <div class="results-section" id="resultsSection" style="display: none;">
+        <div class="results-section" id="r" style="display: none;">
             <div class="result-group">
                 <h3>첫 번째 텍스트</h3>
-                <div class="result-text" id="result1"></div>
+                <div class="result-text" id="r1"></div>
             </div>
             <div class="result-group">
                 <h3>두 번째 텍스트</h3>
-                <div class="result-text" id="result2"></div>
+                <div class="result-text" id="r2"></div>
             </div>
         </div>
-
-
     </div>
 
     <script>
         function compareTexts() {
-            const text1 = document.getElementById('text1').value.trim();
-            const text2 = document.getElementById('text2').value.trim();
-            
-            if (!text1 || !text2) {
-                alert('두 텍스트를 모두 입력해주세요!');
-                return;
-            }
-
-            // 단어별로 분리
-            const words1 = text1.split(/\s+/);
-            const words2 = text2.split(/\s+/);
-            
-            // LCS 알고리즘을 사용하여 차이점 찾기
-            const diff = calculateDiff(words1, words2);
-            
-            // 결과 표시
+            const t1 = document.getElementById('text1').value.trim();
+            const t2 = document.getElementById('text2').value.trim();
+            if (!t1 || !t2) { alert('두 텍스트를 모두 입력해주세요!'); return; }
+            const w1 = t1.split(/\s+/), w2 = t2.split(/\s+/);
+            const diff = calcDiff(w1, w2);
             displayResults(diff);
-            
-            // 결과 섹션 보이기
-            document.getElementById('resultsSection').style.display = 'block';
+            document.getElementById('r').style.display = 'block';
         }
 
-        function calculateDiff(words1, words2) {
-            const m = words1.length;
-            const n = words2.length;
-            
-            // LCS 테이블 생성
+        function calcDiff(w1, w2) {
+            const m = w1.length, n = w2.length;
             const lcs = Array(m + 1).fill().map(() => Array(n + 1).fill(0));
-            
             for (let i = 1; i <= m; i++) {
                 for (let j = 1; j <= n; j++) {
-                    if (words1[i-1] === words2[j-1]) {
-                        lcs[i][j] = lcs[i-1][j-1] + 1;
-                    } else {
-                        lcs[i][j] = Math.max(lcs[i-1][j], lcs[i][j-1]);
-                    }
+                    if (w1[i-1] === w2[j-1]) lcs[i][j] = lcs[i-1][j-1] + 1;
+                    else lcs[i][j] = Math.max(lcs[i-1][j], lcs[i][j-1]);
                 }
             }
-            
-            // 역추적하여 차이점 찾기
-            const result1 = [];
-            const result2 = [];
-            let i = m, j = n;
-            let colorIndex = 1;
-            
+            const r1 = [], r2 = [];
+            let i = m, j = n, c = 1;
             while (i > 0 || j > 0) {
-                if (i > 0 && j > 0 && words1[i-1] === words2[j-1]) {
-                    result1.unshift({word: words1[i-1], type: 'same'});
-                    result2.unshift({word: words2[j-1], type: 'same'});
+                if (i > 0 && j > 0 && w1[i-1] === w2[j-1]) {
+                    r1.unshift({w: w1[i-1], t: 'same'});
+                    r2.unshift({w: w2[j-1], t: 'same'});
                     i--; j--;
                 } else if (i > 0 && (j === 0 || lcs[i-1][j] >= lcs[i][j-1])) {
-                    result1.unshift({word: words1[i-1], type: 'diff', color: colorIndex});
+                    r1.unshift({w: w1[i-1], t: 'diff', c});
                     i--;
                 } else {
-                    result2.unshift({word: words2[j-1], type: 'diff', color: colorIndex});
+                    r2.unshift({w: w2[j-1], t: 'diff', c});
                     j--;
                 }
-                
-                if (i > 0 && j > 0 && words1[i-1] !== words2[j-1]) {
-                    colorIndex = (colorIndex % 8) + 1;
-                }
+                if (i > 0 && j > 0 && w1[i-1] !== w2[j-1]) c = (c % 8) + 1;
             }
-            
-            return {result1, result2};
+            return {r1, r2};
         }
 
-        function displayResults(diff) {
-            const result1Div = document.getElementById('result1');
-            const result2Div = document.getElementById('result2');
-            
-            let highlightGroupIndex = 0;
-            
-            // 첫 번째 텍스트 결과
-            let html1 = '';
-            let isInHighlight = false;
-            let currentGroupIndex = 0;
-            
-            diff.result1.forEach((item, index) => {
-                if (item.type === 'same') {
-                    if (isInHighlight) {
-                        html1 += '</span> ';
-                        isInHighlight = false;
-                    }
-                    html1 += item.word + ' ';
+        function displayResults(d) {
+            const rd1 = document.getElementById('r1'), rd2 = document.getElementById('r2');
+            let h1 = '', h2 = '', inH = false, g = 0;
+            d.r1.forEach((item, i) => {
+                if (item.t === 'same') {
+                    if (inH) { h1 += '</span> '; inH = false; }
+                    h1 += item.w + ' ';
                 } else {
-                    if (!isInHighlight) {
-                        html1 += `<span class="highlight-1" data-group="${currentGroupIndex}">`;
-                        isInHighlight = true;
-                    }
-                    html1 += item.word;
-                    // 다음 항목이 같은 타입이 아니라면 span 닫기
-                    if (index === diff.result1.length - 1 || diff.result1[index + 1].type === 'same') {
-                        html1 += '</span> ';
-                        isInHighlight = false;
-                        currentGroupIndex++;
-                    } else {
-                        html1 += ' ';
-                    }
+                    if (!inH) { h1 += `<span class="highlight-1" data-group="${g}">`;  inH = true; }
+                    h1 += item.w;
+                    if (i === d.r1.length - 1 || d.r1[i + 1].t === 'same') { h1 += '</span> '; inH = false; g++; } else h1 += ' ';
                 }
             });
-            
-            // 두 번째 텍스트 결과
-            let html2 = '';
-            isInHighlight = false;
-            currentGroupIndex = 0;
-            
-            diff.result2.forEach((item, index) => {
-                if (item.type === 'same') {
-                    if (isInHighlight) {
-                        html2 += '</span> ';
-                        isInHighlight = false;
-                    }
-                    html2 += item.word + ' ';
+            inH = false; g = 0;
+            d.r2.forEach((item, i) => {
+                if (item.t === 'same') {
+                    if (inH) { h2 += '</span> '; inH = false; }
+                    h2 += item.w + ' ';
                 } else {
-                    if (!isInHighlight) {
-                        html2 += `<span class="highlight-1" data-group="${currentGroupIndex}">`;
-                        isInHighlight = true;
-                    }
-                    html2 += item.word;
-                    // 다음 항목이 같은 타입이 아니라면 span 닫기
-                    if (index === diff.result2.length - 1 || diff.result2[index + 1].type === 'same') {
-                        html2 += '</span> ';
-                        isInHighlight = false;
-                        currentGroupIndex++;
-                    } else {
-                        html2 += ' ';
-                    }
+                    if (!inH) { h2 += `<span class="highlight-1" data-group="${g}">`;  inH = true; }
+                    h2 += item.w;
+                    if (i === d.r2.length - 1 || d.r2[i + 1].t === 'same') { h2 += '</span> '; inH = false; g++; } else h2 += ' ';
                 }
             });
-            
-            result1Div.innerHTML = html1.trim();
-            result2Div.innerHTML = html2.trim();
-            
-            // 호버 이벤트 추가
-            addHoverEvents();
+            rd1.innerHTML = h1.trim(); rd2.innerHTML = h2.trim();
+            addHover();
         }
 
-        function addHoverEvents() {
-            const highlights = document.querySelectorAll('[class*="highlight-"]');
-            
-            highlights.forEach(highlight => {
-                highlight.addEventListener('mouseenter', function() {
-                    const group = this.getAttribute('data-group');
-                    const sameGroupHighlights = document.querySelectorAll(`[data-group="${group}"]`);
-                    
-                    sameGroupHighlights.forEach(h => {
-                        h.classList.add('highlight-glow');
-                    });
+        function addHover() {
+            document.querySelectorAll('[class*="highlight-"]').forEach(h => {
+                h.addEventListener('mouseenter', function() {
+                    document.querySelectorAll(`[data-group="${this.getAttribute('data-group')}"]`).forEach(sg => sg.classList.add('highlight-glow'));
                 });
-                
-                highlight.addEventListener('mouseleave', function() {
-                    const group = this.getAttribute('data-group');
-                    const sameGroupHighlights = document.querySelectorAll(`[data-group="${group}"]`);
-                    
-                    sameGroupHighlights.forEach(h => {
-                        h.classList.remove('highlight-glow');
-                    });
+                h.addEventListener('mouseleave', function() {
+                    document.querySelectorAll(`[data-group="${this.getAttribute('data-group')}"]`).forEach(sg => sg.classList.remove('highlight-glow'));
                 });
             });
         }
 
-        // 엔터키로 비교 실행
-        document.getElementById('text1').addEventListener('keydown', function(e) {
-            if (e.key === 'Enter' && e.ctrlKey) {
-                compareTexts();
-            }
-        });
-        
-        document.getElementById('text2').addEventListener('keydown', function(e) {
-            if (e.key === 'Enter' && e.ctrlKey) {
-                compareTexts();
-            }
-        });
-
-        // 텍스트 영역 자동 크기 조절 함수
-        function autoResize(textarea) {
-            textarea.style.height = 'auto';
-            textarea.style.height = Math.max(100, textarea.scrollHeight) + 'px';
-        }
-
-        // 입력 이벤트 리스너 추가
-        document.getElementById('text1').addEventListener('input', function() {
-            autoResize(this);
-        });
-        
-        document.getElementById('text2').addEventListener('input', function() {
-            autoResize(this);
-        });
+        function autoResize(ta) { ta.style.height = 'auto'; ta.style.height = Math.max(100, ta.scrollHeight) + 'px'; }
+        document.getElementById('text1').addEventListener('input', function() { autoResize(this); });
+        document.getElementById('text2').addEventListener('input', function() { autoResize(this); });
+        document.getElementById('text1').addEventListener('keydown', function(e) { if (e.key === 'Enter' && e.ctrlKey) compareTexts(); });
+        document.getElementById('text2').addEventListener('keydown', function(e) { if (e.key === 'Enter' && e.ctrlKey) compareTexts(); });
     </script>
 </body>
 </html>
