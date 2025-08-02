@@ -1,1 +1,1 @@
-ECD (English Comparison Device)
+ECT (English Comparison Tool)
