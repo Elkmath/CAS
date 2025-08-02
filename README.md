@@ -1,2 +1,1 @@
-# math-battle
-수학배틀웹사이트
+ECD (English Comparison Device)
