@@ -494,15 +494,19 @@
       const [hScore, sScore, cScore] = res;
 
       const getH = (s) => {
-        if (s < 15) return '낮음';
-        if (s < 30) return '중간';
-        return '높음';
+        let hv;
+        if (s < 15) hv = 50 + s * 3.3;
+        else if (s < 30) hv = 100 + (s - 15) * 6.7;
+        else hv = 200 + (s - 30) * 6.7;
+        return Math.round(hv);
       };
 
       const getS = (s) => {
-        if (s < 15) return '낮음';
-        if (s < 30) return '중간';
-        return '높음';
+        let mpa;
+        if (s < 15) mpa = 200 + s * 13.3;
+        else if (s < 30) mpa = 400 + (s - 15) * 20;
+        else mpa = 700 + (s - 30) * 16.7;
+        return Math.round(mpa);
       };
 
       const getC = (s) => {
