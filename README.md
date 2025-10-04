@@ -1,1 +1,1 @@
-ECT (English Comparison Tool)
+합금 성분 기반 물리적 성질 예측 모델
