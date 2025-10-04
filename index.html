@@ -1,328 +1,551 @@
-import React, { useState, useEffect } from 'react';
-import { Plus, Trash2 } from 'lucide-react';
-import * as tf from 'tensorflow';
-
-const AlloyPredictor = () => {
-  const [els, setEls] = useState([
-    { name: 'Cu', pct: 70 },
-    { name: 'Zn', pct: 30 }
-  ]);
-  const [preds, setPreds] = useState(null);
-  const [mdl, setMdl] = useState(null);
-  const [training, setTraining] = useState(false);
-
-  const elData = {
-    'Fe': { d: 7.87, mp: 1538, tc: 80.4, er: 9.71 },
-    'Al': { d: 2.70, mp: 660, tc: 237, er: 2.65 },
-    'Cu': { d: 8.96, mp: 1085, tc: 401, er: 1.68 },
-    'Ni': { d: 8.91, mp: 1455, tc: 90.7, er: 6.99 },
-    'Cr': { d: 7.19, mp: 1907, tc: 93.7, er: 12.9 },
-    'Ti': { d: 4.51, mp: 1668, tc: 21.9, er: 42.0 },
-    'Mg': { d: 1.74, mp: 650, tc: 156, er: 4.45 },
-    'Zn': { d: 7.14, mp: 420, tc: 116, er: 5.90 },
-    'Mn': { d: 7.43, mp: 1246, tc: 7.8, er: 144 },
-    'Si': { d: 2.33, mp: 1414, tc: 148, er: 1000 }
-  };
-
-  const genData = () => {
-    const data = [];
-    const elList = Object.keys(elData);
-    
-    for (let i = 0; i < 200; i++) {
-      const n = Math.floor(Math.random() * 3) + 2;
-      const sel = [...elList].sort(() => Math.random() - 0.5).slice(0, n);
-      const pcts = [];
-      let rem = 100;
-      
-      for (let j = 0; j < n - 1; j++) {
-        const p = Math.random() * rem * 0.7;
-        pcts.push(p);
-        rem -= p;
-      }
-      pcts.push(rem);
-      
-      const inp = new Array(10).fill(0);
-      let hScore = 0, sScore = 0, cScore = 0;
-      
-      sel.forEach((el, idx) => {
-        const ix = elList.indexOf(el);
-        const frac = pcts[idx] / 100;
-        inp[ix] = pcts[idx];
-        
-        if (el === 'Cr') { hScore += 40 * frac; sScore += 35 * frac; cScore += 50 * frac; }
-        if (el === 'Ni') { hScore += 20 * frac; sScore += 30 * frac; cScore += 40 * frac; }
-        if (el === 'Ti') { hScore += 35 * frac; sScore += 45 * frac; cScore += 35 * frac; }
-        if (el === 'Al') { sScore += 20 * frac; cScore += 30 * frac; }
-        if (el === 'Mn') { hScore += 25 * frac; }
-        if (el === 'Cu') { hScore += 15 * frac; cScore += 20 * frac; }
-      });
-      
-      hScore *= (1 + (Math.random() - 0.5) * 0.2);
-      sScore *= (1 + (Math.random() - 0.5) * 0.2);
-      cScore *= (1 + (Math.random() - 0.5) * 0.2);
-      
-      data.push({ input: inp, output: [hScore, sScore, cScore] });
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>합금 성분 기반 물리적 성질 예측 모델</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/tensorflow/4.11.0/tf.min.js"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
     }
     
-    return data;
-  };
-
-  const trainMdl = async () => {
-    try {
-      setTraining(true);
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f9fafb;
+      padding: 24px;
+    }
+    
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    
+    .card {
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      padding: 32px;
+    }
+    
+    h1 {
+      font-size: 30px;
+      font-weight: bold;
+      text-align: center;
+      color: #1f2937;
+      margin-bottom: 32px;
+    }
+    
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+    
+    h2 {
+      font-size: 24px;
+      font-weight: bold;
+      color: #1f2937;
+    }
+    
+    .btn {
+      padding: 8px 16px;
+      border: none;
+      border-radius: 4px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .btn-primary {
+      background: #2563eb;
+      color: white;
+      transition: all 0.3s ease;
+    }
+    
+    .btn-primary:hover:not(:disabled) {
+      background: #3b82f6;
+      box-shadow: 0 0 20px rgba(37, 99, 235, 0.4), 0 0 40px rgba(37, 99, 235, 0.2);
+    }
+    
+    .btn-primary:active:not(:disabled) {
+      background: #1d4ed8;
+      box-shadow: 0 0 25px rgba(37, 99, 235, 0.6), 0 0 50px rgba(37, 99, 235, 0.3);
+    }
+    
+    .btn-primary:disabled {
+      background: #9ca3af;
+      cursor: not-allowed;
+    }
+    
+    .btn-full {
+      width: 100%;
+      justify-content: center;
+      padding: 12px;
+      font-size: 16px;
+      margin: 32px 0;
+    }
+    
+    .elements-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    
+    .element-row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      background: #f9fafb;
+      padding: 12px;
+      border-radius: 8px;
+    }
+    
+    select, input[type="number"] {
+      border: 1px solid #d1d5db;
+      border-radius: 8px;
+      padding: 8px;
+      font-size: 14px;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      font-weight: 600;
+    }
+    
+    select {
+      width: 80px;
+    }
+    
+    select:focus, input:focus {
+      outline: none;
+      border-color: #2563eb;
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    }
+    
+    .input-wrapper {
+      position: relative;
+      flex: 1;
+    }
+    
+    .input-wrapper input {
+      width: 100%;
+      padding-right: 28px;
+    }
+    
+    .input-wrapper span {
+      position: absolute;
+      right: 8px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #6b7280;
+      font-size: 14px;
+    }
+    
+    .btn-delete {
+      background: transparent;
+      color: #dc2626;
+      padding: 2px 4px;
+      border: none;
+      cursor: pointer;
+      border-radius: 4px;
+      font-size: 18px;
+      font-weight: bold;
+      line-height: 1;
+    }
+    
+    .total-row {
+      text-align: right;
+      margin-top: 16px;
+      font-size: 18px;
+      font-weight: 600;
+    }
+    
+    .total-green {
+      color: #16a34a;
+    }
+    
+    .total-red {
+      color: #dc2626;
+    }
+    
+    .results {
+      background: #f9fafb;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      padding: 24px;
+      margin-top: 32px;
+    }
+    
+    .results h2 {
+      margin-bottom: 24px;
+    }
+    
+    .results-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+    }
+    
+    .result-card {
+      background: white;
+      border: 1px solid #e5e7eb;
+      border-radius: 4px;
+      padding: 16px;
+    }
+    
+    .result-card.full {
+      grid-column: span 2;
+    }
+    
+    .result-label {
+      font-size: 14px;
+      font-weight: 600;
+      color: #6b7280;
+      margin-bottom: 4px;
+    }
+    
+    .result-value {
+      font-size: 24px;
+      font-weight: bold;
+      color: #1f2937;
+    }
+    
+    .result-value.small {
+      font-size: 20px;
+    }
+    
+    .hidden {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="card">
+      <h1>합금 성분 기반 물리적 성질 예측 모델</h1>
       
-      const m = tf.sequential({
-        layers: [
-          tf.layers.dense({ inputShape: [10], units: 32, activation: 'relu' }),
-          tf.layers.dense({ units: 16, activation: 'relu' }),
-          tf.layers.dense({ units: 3, activation: 'linear' })
-        ]
-      });
-
-      m.compile({
-        optimizer: tf.train.adam(0.001),
-        loss: 'meanSquaredError'
-      });
-
-      const data = genData();
-      const xs = tf.tensor2d(data.map(d => d.input));
-      const ys = tf.tensor2d(data.map(d => d.output));
-
-      await m.fit(xs, ys, {
-        epochs: 50,
-        batchSize: 16,
-        validationSplit: 0.15,
-        verbose: 0
-      });
-
-      xs.dispose();
-      ys.dispose();
-      setMdl(m);
-    } catch (error) {
-      console.error('학습 오류:', error);
-      alert('AI 모델 학습에 실패했습니다. 페이지를 새로고침해주세요.');
-    } finally {
-      setTraining(false);
-    }
-  };
-
-  useEffect(() => {
-    trainMdl();
-  }, []);
-
-  const add = () => {
-    const usedElements = els.map(e => e.name);
-    const availableElements = Object.keys(elData).filter(name => !usedElements.includes(name));
-    const newElement = availableElements.length > 0 ? availableElements[0] : 'Fe';
-    setEls([...els, { name: newElement, pct: 0 }]);
-  };
-
-  const remove = (i) => {
-    setEls(els.filter((_, ix) => ix !== i));
-  };
-
-  const update = (i, field, val) => {
-    const newEls = [...els];
-    newEls[i][field] = val;
-    setEls(newEls);
-  };
-
-  const total = els.reduce((sum, el) => sum + parseFloat(el.pct || 0), 0);
-  const isValid = Math.abs(total - 100) < 0.1;
-
-  const predict = async () => {
-    if (!isValid) return;
-    if (!mdl) {
-      alert('AI 모델이 아직 학습 중입니다.');
-      return;
-    }
-
-    // 혼합법칙으로 물리적 성질 계산
-    let d = 0, mp = 0, tc = 0, er = 0;
-    els.forEach(el => {
-      const frac = parseFloat(el.pct) / 100;
-      const props = elData[el.name];
-      d += props.d * frac;
-      mp += props.mp * frac;
-      tc += props.tc * frac;
-      er += props.er * frac;
-    });
-
-    // AI로 기계적 성질 예측
-    const elList = Object.keys(elData);
-    const inp = new Array(10).fill(0);
-    
-    els.forEach(el => {
-      const ix = elList.indexOf(el.name);
-      if (ix !== -1) inp[ix] = parseFloat(el.pct);
-    });
-
-    const inpTensor = tf.tensor2d([inp]);
-    const pred = mdl.predict(inpTensor);
-    const res = await pred.data();
-    
-    inpTensor.dispose();
-    pred.dispose();
-
-    const [hScore, sScore, cScore] = res;
-
-    const getH = (s) => {
-      if (s < 15) return '낮음';
-      if (s < 30) return '중간';
-      return '높음';
-    };
-
-    const getS = (s) => {
-      if (s < 15) return '낮음';
-      if (s < 30) return '중간';
-      return '높음';
-    };
-
-    const getC = (s) => {
-      if (s < 10) return '낮음';
-      if (s < 25) return '중간';
-      return '높음';
-    };
-
-    setPreds({
-      d: d.toFixed(2),
-      mp: mp.toFixed(0),
-      tc: tc.toFixed(1),
-      er: er.toFixed(2),
-      h: getH(hScore),
-      s: getS(sScore),
-      c: getC(cScore)
-    });
-  };
-
-  return (
-    <div className="min-h-screen bg-gray-50 p-6">
-      <div className="max-w-6xl mx-auto">
-        <div className="bg-white rounded-lg shadow p-8">
-          <h1 className="text-3xl font-bold text-center mb-8 text-gray-800">
-            합금 성분 기반 물리적 성질 예측 모델
-          </h1>
-
-          <div className="mb-8">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-2xl font-bold text-gray-800">원소 구성</h2>
-              <button
-                onClick={add}
-                disabled={els.length >= 10}
-                className={`flex items-center gap-2 px-4 py-2 rounded transition ${
-                  els.length >= 10
-                    ? 'bg-gray-400 text-white cursor-not-allowed'
-                    : 'bg-blue-600 text-white hover:bg-blue-700'
-                }`}
-              >
-                <Plus size={20} />
-                원소 추가
-              </button>
-            </div>
-
-            <div className="grid grid-cols-2 gap-3">
-              {els.map((el, i) => (
-                <div key={i} className="flex gap-2 items-center bg-gray-50 p-3 rounded-lg">
-                  <select
-                    value={el.name}
-                    onChange={(e) => update(i, 'name', e.target.value)}
-                    className="w-20 px-2 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm"
-                  >
-                    {Object.keys(elData).map(name => (
-                      <option 
-                        key={name} 
-                        value={name}
-                        disabled={els.some((e, idx) => idx !== i && e.name === name)}
-                      >
-                        {name}
-                      </option>
-                    ))}
-                  </select>
-                  <div className="relative flex-1">
-                    <input
-                      type="number"
-                      placeholder="비율"
-                      value={el.pct}
-                      onChange={(e) => update(i, 'pct', e.target.value)}
-                      className="w-full px-2 py-2 pr-7 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm"
-                    />
-                    <span className="absolute right-2 top-2 text-gray-500 text-sm">%</span>
-                  </div>
-                  <button
-                    onClick={() => remove(i)}
-                    className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition"
-                  >
-                    <Trash2 size={18} />
-                  </button>
-                </div>
-              ))}
-            </div>
-
-            <div className="mt-4 text-right">
-              <span className="text-lg font-semibold">
-                총 비율: <span className={isValid ? 'text-green-600' : 'text-red-600'}>
-                  {total.toFixed(1)}%
-                </span>
-              </span>
-            </div>
-          </div>
-
-          <button
-            onClick={predict}
-            disabled={training || !isValid}
-            className={`w-full py-3 rounded font-semibold transition ${
-              training || !isValid
-                ? 'bg-gray-400 text-white cursor-not-allowed' 
-                : 'bg-blue-600 text-white hover:bg-blue-700'
-            }`}
-          >
-            {training ? 'AI 학습 중...' : 'AI로 성질 예측하기'}
-          </button>
-
-          {preds && (
-            <div className="mt-8 bg-gray-50 rounded-lg p-6 border border-gray-200">
-              <h2 className="text-2xl font-bold text-gray-800 mb-6">예측 결과</h2>
-              
-              <div className="grid grid-cols-2 gap-4">
-                <div className="bg-white rounded border border-gray-200 p-4">
-                  <h3 className="text-sm font-semibold text-gray-600 mb-1">밀도 (g/cm³)</h3>
-                  <p className="text-2xl font-bold text-gray-800">{preds.d}</p>
-                </div>
-
-                <div className="bg-white rounded border border-gray-200 p-4">
-                  <h3 className="text-sm font-semibold text-gray-600 mb-1">녹는점 (°C)</h3>
-                  <p className="text-2xl font-bold text-gray-800">{preds.mp}</p>
-                </div>
-
-                <div className="bg-white rounded border border-gray-200 p-4">
-                  <h3 className="text-sm font-semibold text-gray-600 mb-1">열전도도 (W/m·K)</h3>
-                  <p className="text-2xl font-bold text-gray-800">{preds.tc}</p>
-                </div>
-
-                <div className="bg-white rounded border border-gray-200 p-4">
-                  <h3 className="text-sm font-semibold text-gray-600 mb-1">전기저항률 (μΩ·cm)</h3>
-                  <p className="text-2xl font-bold text-gray-800">{preds.er}</p>
-                </div>
-
-                <div className="bg-white rounded border border-gray-200 p-4">
-                  <h3 className="text-sm font-semibold text-gray-600 mb-1">경도 (HV)</h3>
-                  <p className="text-xl font-bold text-gray-800">{preds.h}</p>
-                </div>
-
-                <div className="bg-white rounded border border-gray-200 p-4">
-                  <h3 className="text-sm font-semibold text-gray-600 mb-1">인장(당기는 힘) 강도 (MPa)</h3>
-                  <p className="text-xl font-bold text-gray-800">{preds.s}</p>
-                </div>
-
-                <div className="bg-white rounded border border-gray-200 p-4 col-span-2">
-                  <h3 className="text-sm font-semibold text-gray-600 mb-1">내식성 (부식 저항성)</h3>
-                  <p className="text-xl font-bold text-gray-800">{preds.c}</p>
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
+      <div class="section-header">
+        <h2>원소 구성</h2>
+        <button class="btn btn-primary" id="addBtn" onclick="addElement()">
+          <span>+</span> 원소 추가
+        </button>
+      </div>
+      
+      <div class="elements-grid" id="elements"></div>
+      
+      <div class="total-row">
+        총 비율: <span id="totalPct" class="total-red">0.0%</span>
+      </div>
+      
+      <button class="btn btn-primary btn-full" id="predictBtn" onclick="predict()" disabled>
+        AI 학습 중...
+      </button>
+      
+      <div class="results hidden" id="results">
+        <h2>예측 결과</h2>
+        <div class="results-grid" id="resultGrid"></div>
       </div>
     </div>
-  );
-};
+  </div>
+
+  <script>
+    const elData = {
+      'Al': { d: 2.70, mp: 660, tc: 237, er: 2.65 },
+      'Si': { d: 2.33, mp: 1414, tc: 148, er: 1000 },
+      'Ti': { d: 4.51, mp: 1668, tc: 21.9, er: 42.0 },
+      'Cr': { d: 7.19, mp: 1907, tc: 93.7, er: 12.9 },
+      'Mn': { d: 7.43, mp: 1246, tc: 7.8, er: 144 },
+      'Fe': { d: 7.87, mp: 1538, tc: 80.4, er: 9.71 },
+      'Ni': { d: 8.91, mp: 1455, tc: 90.7, er: 6.99 },
+      'Cu': { d: 8.96, mp: 1085, tc: 401, er: 1.68 },
+      'Zn': { d: 7.14, mp: 420, tc: 116, er: 5.90 },
+      'Mg': { d: 1.74, mp: 650, tc: 156, er: 4.45 }
+    };
+
+    let els = [
+      { name: 'Fe', pct: 70 },
+      { name: 'Cu', pct: 30 }
+    ];
+    let model = null;
+    let training = true;
+
+    function genData() {
+      const data = [];
+      const elList = Object.keys(elData);
+      
+      for (let i = 0; i < 300; i++) {
+        const n = Math.floor(Math.random() * 3) + 2;
+        const sel = [...elList].sort(() => Math.random() - 0.5).slice(0, n);
+        const pcts = [];
+        let rem = 100;
+        
+        for (let j = 0; j < n - 1; j++) {
+          const p = Math.random() * rem * 0.7;
+          pcts.push(p);
+          rem -= p;
+        }
+        pcts.push(rem);
+        
+        const inp = new Array(10).fill(0);
+        let hScore = 0, sScore = 0, cScore = 0;
+        
+        sel.forEach((el, idx) => {
+          const ix = elList.indexOf(el);
+          const frac = pcts[idx] / 100;
+          inp[ix] = pcts[idx];
+          
+          if (el === 'Cr') { hScore += 40 * frac; sScore += 35 * frac; cScore += 50 * frac; }
+          if (el === 'Ni') { hScore += 20 * frac; sScore += 30 * frac; cScore += 40 * frac; }
+          if (el === 'Ti') { hScore += 35 * frac; sScore += 45 * frac; cScore += 35 * frac; }
+          if (el === 'Al') { sScore += 20 * frac; cScore += 30 * frac; }
+          if (el === 'Mn') { hScore += 25 * frac; }
+          if (el === 'Cu') { hScore += 15 * frac; cScore += 20 * frac; }
+        });
+        
+        hScore *= (1 + (Math.random() - 0.5) * 0.2);
+        sScore *= (1 + (Math.random() - 0.5) * 0.2);
+        cScore *= (1 + (Math.random() - 0.5) * 0.2);
+        
+        data.push({ input: inp, output: [hScore, sScore, cScore] });
+      }
+      
+      return data;
+    }
+
+    async function trainModel() {
+      try {
+        training = true;
+        updateBtn();
+        
+        const m = tf.sequential({
+          layers: [
+            tf.layers.dense({ inputShape: [10], units: 48, activation: 'relu' }),
+            tf.layers.dense({ units: 24, activation: 'relu' }),
+            tf.layers.dense({ units: 12, activation: 'relu' }),
+            tf.layers.dense({ units: 3, activation: 'linear' })
+          ]
+        });
+
+        m.compile({
+          optimizer: tf.train.adam(0.001),
+          loss: 'meanSquaredError'
+        });
+
+        const data = genData();
+        const xs = tf.tensor2d(data.map(d => d.input));
+        const ys = tf.tensor2d(data.map(d => d.output));
+
+        await m.fit(xs, ys, {
+          epochs: 80,
+          batchSize: 20,
+          validationSplit: 0.2,
+          verbose: 0
+        });
+
+        xs.dispose();
+        ys.dispose();
+        model = m;
+      } catch (error) {
+        console.error('학습 오류:', error);
+        alert('AI 모델 학습에 실패했습니다. 페이지를 새로고침해주세요.');
+      } finally {
+        training = false;
+        updateBtn();
+      }
+    }
+
+    function render() {
+      const container = document.getElementById('elements');
+      container.innerHTML = '';
+      
+      const usedNames = els.map(e => e.name);
+      
+      els.forEach((el, i) => {
+        const row = document.createElement('div');
+        row.className = 'element-row';
+        
+        // Select 생성
+        const select = document.createElement('select');
+        Object.keys(elData).forEach(name => {
+          const opt = document.createElement('option');
+          opt.value = name;
+          opt.textContent = name;
+          opt.selected = (name === el.name);
+          opt.disabled = usedNames.includes(name) && name !== el.name;
+          select.appendChild(opt);
+        });
+        
+        select.addEventListener('change', function(e) {
+          els[i].name = e.target.value;
+          render();
+        });
+        
+        // Input wrapper 생성
+        const wrapper = document.createElement('div');
+        wrapper.className = 'input-wrapper';
+        
+        const input = document.createElement('input');
+        input.type = 'number';
+        input.value = el.pct;
+        input.placeholder = '비율';
+        input.addEventListener('input', function(e) {
+          els[i].pct = parseFloat(e.target.value) || 0;
+          updateTotal();
+        });
+        
+        const percent = document.createElement('span');
+        percent.textContent = '%';
+        
+        wrapper.appendChild(input);
+        wrapper.appendChild(percent);
+        
+        // Delete 버튼
+        const delBtn = document.createElement('button');
+        delBtn.className = 'btn-delete';
+        delBtn.textContent = '🗑';
+        delBtn.addEventListener('click', function() {
+          els.splice(i, 1);
+          render();
+        });
+        
+        row.appendChild(select);
+        row.appendChild(wrapper);
+        row.appendChild(delBtn);
+        container.appendChild(row);
+      });
+      
+      updateTotal();
+      updateAddBtn();
+    }
+
+    function updateTotal() {
+      const total = els.reduce((sum, el) => sum + el.pct, 0);
+      const span = document.getElementById('totalPct');
+      span.textContent = total.toFixed(1) + '%';
+      span.className = Math.abs(total - 100) < 0.1 ? 'total-green' : 'total-red';
+      updateBtn();
+    }
+
+    function updateBtn() {
+      const btn = document.getElementById('predictBtn');
+      const total = els.reduce((sum, el) => sum + el.pct, 0);
+      const isValid = Math.abs(total - 100) < 0.1;
+      
+      btn.disabled = training || !isValid;
+      btn.textContent = training ? 'AI 학습 중...' : 'AI로 성질 예측하기';
+    }
+
+    function updateAddBtn() {
+      const btn = document.getElementById('addBtn');
+      btn.disabled = els.length >= 10;
+    }
+
+    function addElement() {
+      if (els.length >= 10) return;
+      const usedNames = els.map(e => e.name);
+      const availableNames = Object.keys(elData).filter(name => !usedNames.includes(name));
+      const newName = availableNames.length > 0 ? availableNames[0] : 'Fe';
+      els.push({ name: newName, pct: 0 });
+      render();
+    }
+
+    async function predict() {
+      const total = els.reduce((sum, el) => sum + el.pct, 0);
+      if (Math.abs(total - 100) > 0.1) {
+        alert('원소 비율의 합이 100%가 되어야 합니다!');
+        return;
+      }
+
+      if (!model) {
+        alert('AI 모델이 아직 학습 중입니다.');
+        return;
+      }
+
+      let d = 0, mp = 0, tc = 0, er = 0;
+      els.forEach(el => {
+        const frac = el.pct / 100;
+        const props = elData[el.name];
+        d += props.d * frac;
+        mp += props.mp * frac;
+        tc += props.tc * frac;
+        er += props.er * frac;
+      });
+
+      const elList = Object.keys(elData);
+      const inp = new Array(10).fill(0);
+      
+      els.forEach(el => {
+        const ix = elList.indexOf(el.name);
+        if (ix !== -1) inp[ix] = el.pct;
+      });
+
+      const inpTensor = tf.tensor2d([inp]);
+      const pred = model.predict(inpTensor);
+      const res = await pred.data();
+      
+      inpTensor.dispose();
+      pred.dispose();
+
+      const [hScore, sScore, cScore] = res;
+
+      const getH = (s) => {
+        if (s < 15) return '낮음';
+        if (s < 30) return '중간';
+        return '높음';
+      };
+
+      const getS = (s) => {
+        if (s < 15) return '낮음';
+        if (s < 30) return '중간';
+        return '높음';
+      };
+
+      const getC = (s) => {
+        if (s < 10) return '낮음';
+        if (s < 25) return '중간';
+        return '높음';
+      };
+
+      const results = [
+        { label: '밀도 (g/cm³)', value: d.toFixed(2), small: false },
+        { label: '녹는점 (°C)', value: mp.toFixed(0), small: false },
+        { label: '열전도도 (W/m·K)', value: tc.toFixed(1), small: false },
+        { label: '전기저항률 (μΩ·cm)', value: er.toFixed(2), small: false },
+        { label: '경도 (HV)', value: getH(hScore), small: true },
+        { label: '인장(당기는 힘) 강도 (MPa)', value: getS(sScore), small: true },
+        { label: '내식성 (부식 저항성)', value: getC(cScore), small: true, full: true }
+      ];
+
+      const grid = document.getElementById('resultGrid');
+      grid.innerHTML = '';
+      
+      results.forEach(r => {
+        const div = document.createElement('div');
+        div.className = 'result-card' + (r.full ? ' full' : '');
+        
+        const label = document.createElement('div');
+        label.className = 'result-label';
+        label.textContent = r.label;
+        
+        const value = document.createElement('div');
+        value.className = 'result-value' + (r.small ? ' small' : '');
+        value.textContent = r.value;
+        
+        div.appendChild(label);
+        div.appendChild(value);
+        grid.appendChild(div);
+      });
+
+      document.getElementById('results').classList.remove('hidden');
+    }
+
+    trainModel();
+    render();
+  </script>
+</body>
+</html>
