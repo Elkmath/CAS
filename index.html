@@ -520,9 +520,9 @@
         { label: '녹는점 (°C)', value: mp.toFixed(0), small: false },
         { label: '열전도도 (W/m·K)', value: tc.toFixed(1), small: false },
         { label: '전기저항률 (μΩ·cm)', value: er.toFixed(2), small: false },
-        { label: '경도 (HV)', value: getH(hScore), small: true },
-        { label: '인장(당기는 힘) 강도 (MPa)', value: getS(sScore), small: true },
-        { label: '내식성 (부식 저항성)', value: getC(cScore), small: true, full: true }
+        { label: '경도 (HV)', value: getH(hScore), small: false },
+        { label: '인장(당기는 힘) 강도 (MPa)', value: getS(sScore), small: false },
+        { label: '내식성 (부식 저항성)', value: getC(cScore), small: false, full: true }
       ];
 
       const grid = document.getElementById('resultGrid');
