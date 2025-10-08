@@ -278,7 +278,7 @@
       const data = [];
       const elList = Object.keys(elData);
       
-      for (let i = 0; i < 300; i++) {
+      for (let i = 0; i < 500; i++) {
         const n = Math.floor(Math.random() * 3) + 2;
         const sel = [...elList].sort(() => Math.random() - 0.5).slice(0, n);
         const pcts = [];
@@ -292,12 +292,25 @@
         pcts.push(rem);
         
         const inp = new Array(10).fill(0);
+        let d = 0, mp = 0, tc = 0, er = 0;
         let hScore = 0, sScore = 0, cScore = 0;
         
         sel.forEach((el, idx) => {
           const ix = elList.indexOf(el);
           const frac = pcts[idx] / 100;
           inp[ix] = pcts[idx];
+          
+          const props = elData[el];
+          d += props.d * frac;
+          mp += props.mp * frac;
+          
+          // 열전도도: 조화평균 사용 (더 정확)
+          if (tc === 0) tc = 1 / props.tc;
+          else tc += frac / props.tc;
+          
+          // 전기저항률: 조화평균 사용
+          if (er === 0) er = frac / props.er;
+          else er += frac / props.er;
           
           if (el === 'Cr') { hScore += 40 * frac; sScore += 35 * frac; cScore += 50 * frac; }
           if (el === 'Ni') { hScore += 20 * frac; sScore += 30 * frac; cScore += 40 * frac; }
@@ -307,11 +320,19 @@
           if (el === 'Cu') { hScore += 15 * frac; cScore += 20 * frac; }
         });
         
+        tc = 1 / tc; // 조화평균 완성
+        er = 1 / er; // 조화평균 완성
+        
+        // 비선형성 추가
+        d *= (1 + (Math.random() - 0.5) * 0.1);
+        mp *= (1 + (Math.random() - 0.5) * 0.08);
+        tc *= (1 + (Math.random() - 0.5) * 0.15);
+        er *= (1 + (Math.random() - 0.5) * 0.15);
         hScore *= (1 + (Math.random() - 0.5) * 0.2);
         sScore *= (1 + (Math.random() - 0.5) * 0.2);
         cScore *= (1 + (Math.random() - 0.5) * 0.2);
         
-        data.push({ input: inp, output: [hScore, sScore, cScore] });
+        data.push({ input: inp, output: [d, mp, tc, er, hScore, sScore, cScore] });
       }
       
       return data;
@@ -324,10 +345,12 @@
         
         const m = tf.sequential({
           layers: [
-            tf.layers.dense({ inputShape: [10], units: 48, activation: 'relu' }),
-            tf.layers.dense({ units: 24, activation: 'relu' }),
-            tf.layers.dense({ units: 12, activation: 'relu' }),
-            tf.layers.dense({ units: 3, activation: 'linear' })
+            tf.layers.dense({ inputShape: [10], units: 128, activation: 'relu' }),
+            tf.layers.dropout({ rate: 0.2 }),
+            tf.layers.dense({ units: 64, activation: 'relu' }),
+            tf.layers.dropout({ rate: 0.2 }),
+            tf.layers.dense({ units: 32, activation: 'relu' }),
+            tf.layers.dense({ units: 7, activation: 'linear' })
           ]
         });
 
@@ -337,12 +360,15 @@
         });
 
         const data = genData();
-        const xs = tf.tensor2d(data.map(d => d.input));
-        const ys = tf.tensor2d(data.map(d => d.output));
+        const inputData = data.map(d => d.input);
+        const outputData = data.map(d => d.output);
+        
+        const xs = tf.tensor2d(inputData);
+        const ys = tf.tensor2d(outputData);
 
         await m.fit(xs, ys, {
-          epochs: 80,
-          batchSize: 20,
+          epochs: 150,
+          batchSize: 32,
           validationSplit: 0.2,
           verbose: 0
         });
@@ -466,16 +492,20 @@
         return;
       }
 
-      let d = 0, mp = 0, tc = 0, er = 0;
+      // 혼합법칙으로 기본값 계산
+      let d_mix = 0, mp_mix = 0, tc_inv = 0, er_inv = 0;
       els.forEach(el => {
         const frac = el.pct / 100;
         const props = elData[el.name];
-        d += props.d * frac;
-        mp += props.mp * frac;
-        tc += props.tc * frac;
-        er += props.er * frac;
+        d_mix += props.d * frac;
+        mp_mix += props.mp * frac;
+        tc_inv += frac / props.tc;
+        er_inv += frac / props.er;
       });
+      const tc_mix = 1 / tc_inv;
+      const er_mix = 1 / er_inv;
 
+      // AI로 모든 성질 예측
       const elList = Object.keys(elData);
       const inp = new Array(10).fill(0);
       
@@ -491,7 +521,13 @@
       inpTensor.dispose();
       pred.dispose();
 
-      const [hScore, sScore, cScore] = res;
+      const [d_ai, mp_ai, tc_ai, er_ai, hScore, sScore, cScore] = res;
+      
+      // 혼합법칙과 AI 예측값을 결합 (가중평균: 혼합법칙 70%, AI 30%)
+      const d = d_mix * 0.7 + d_ai * 0.3;
+      const mp = mp_mix * 0.7 + mp_ai * 0.3;
+      const tc = tc_mix * 0.7 + tc_ai * 0.3;
+      const er = er_mix * 0.7 + er_ai * 0.3;
 
       const getH = (s) => {
         let hv;
