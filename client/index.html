@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>색과 정보 수용 능력 — GABA 실험</title>
+<title>특수형 반응 속도 실험</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -285,7 +285,7 @@
   }
   .step-text {
     font-size: 13px;
-    color: var(--text-muted);
+    color: var(--text);
     line-height: 1.7;
   }
 
@@ -657,9 +657,10 @@
       <div style="display:flex; justify-content:center; margin-top:0.5rem; padding-bottom:1.25rem;">
         <div style="width:360px; height:360px; background:#ffffff; border-radius:4px;"></div>
       </div>
+      <div style="display:flex; justify-content:center; padding-bottom:1.25rem;">
+        <button class="btn btn-accent" onclick="startPhase1()">1단계 시작 →</button>
+      </div>
     </div>
-
-    <button class="btn btn-accent" onclick="startPhase1()">1단계 시작 →</button>
   </div>
 </div>
 
@@ -667,7 +668,7 @@
 <div id="breath-screen" class="screen" style="background:#000; align-items:center; justify-content:center; min-height:100vh;">
   <div style="text-align:center; display:flex; flex-direction:column; align-items:center; gap:1.75rem;">
     <div style="font-family:var(--mono); font-size:11px; letter-spacing:0.18em; color:rgba(45,212,191,0.5); text-transform:uppercase;" id="breath-step">1 / 8</div>
-    <p style="font-size:17px; color:rgba(255,255,255,0.6); line-height:1.9; font-weight:300; letter-spacing:0.02em;">심호흡을 하세요.<br><span style="font-size:13px; color:rgba(255,255,255,0.28); letter-spacing:0.05em;">준비가 되면 다음을 눌러 시작합니다.</span></p>
+    <p style="font-size:17px; color:rgba(255,255,255,0.9); line-height:1.9; font-weight:300; letter-spacing:0.02em;">심호흡을 하세요.<br><span style="font-size:13px; color:rgba(255,255,255,0.6); letter-spacing:0.05em;">준비가 되면 다음을 눌러 시작하세요.</span></p>
     <button class="btn" onclick="startTrial()" style="background:#2dd4bf; border-color:#2dd4bf; color:#0a2e2b; font-weight:700; padding:13px 42px; font-size:14px; border-radius:50px; letter-spacing:0.04em;">다음 →</button>
   </div>
 </div>
